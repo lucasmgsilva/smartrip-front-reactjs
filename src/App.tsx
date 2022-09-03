@@ -1,20 +1,28 @@
-import { ChakraProvider } from '@chakra-ui/react'
-import { BrowserRouter } from 'react-router-dom'
 // import { ThemeProvider } from 'styled-components'
+// import { GlobalStyle } from './styles/styled-components/globals'
+// import { defaultTheme } from './styles/styled-components/themes/default'
+
+import { ColorModeProvider } from '@chakra-ui/react'
+import { BrowserRouter } from 'react-router-dom'
+import { SidebarDrawerProvider } from './contexts/SidebarDrawerContext'
+import { ChakraThemeProvider } from './contexts/ChakraThemeProvider'
 import { Router } from './Router'
-// import { GlobalStyle } from './styles/globals'
-import { theme } from './styles/theme'
-// import { defaultTheme } from './styles/themes/default'
+import { SidebarProvider } from './contexts/SidebarContext'
 
 export function App() {
   return (
-    // <ThemeProvider theme={defaultTheme}>
-    <ChakraProvider theme={theme}>
-      <BrowserRouter>
-        <Router />
-        {/* <GlobalStyle /> */}
-      </BrowserRouter>
-    </ChakraProvider>
-    // </ThemeProvider>
+    <ColorModeProvider>
+      <ChakraThemeProvider>
+        {/* <ThemeProvider theme={defaultTheme}> */}
+        <SidebarDrawerProvider>
+          <SidebarProvider>
+            <BrowserRouter>
+              <Router />
+            </BrowserRouter>
+          </SidebarProvider>
+        </SidebarDrawerProvider>
+        {/* </ThemeProvider> */}
+      </ChakraThemeProvider>
+    </ColorModeProvider>
   )
 }

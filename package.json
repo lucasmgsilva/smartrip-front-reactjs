@@ -1,5 +1,5 @@
 {
-  "name": "smartrip-front-reactjs",
+  "name": "SmarTrip",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -13,8 +13,10 @@
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
     "framer-motion": "^7.2.1",
+    "phosphor-react": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^4.4.0",
     "react-router-dom": "^6.3.0",
     "styled-components": "^5.3.5"
   },

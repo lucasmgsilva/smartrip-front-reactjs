@@ -7,6 +7,14 @@ export function Router() {
     <Routes>
       <Route path="/" element={<DefaultLayout />}>
         <Route path="/" element={<Home />} />
+
+        <Route path="/veiculos" element={<Home />} />
+
+        <Route path="/rotas" element={<Home />} />
+
+        <Route path="/usuarios" element={<Home />} />
+
+        <Route path="/viagens" element={<Home />} />
       </Route>
     </Routes>
   )
