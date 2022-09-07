@@ -12,6 +12,8 @@
     "@chakra-ui/react": "^2.2.9",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.0",
+    "@hookform/resolvers": "^2.9.7",
+    "axios": "^0.27.2",
     "firebase": "^9.9.4",
     "framer-motion": "^7.2.1",
     "mapbox-gl": "^2.10.0",
@@ -22,7 +24,9 @@
     "react-icons": "^4.4.0",
     "react-map-gl": "^7.0.19",
     "react-router-dom": "^6.3.0",
-    "styled-components": "^5.3.5"
+    "react-toastify": "^9.0.8",
+    "styled-components": "^5.3.5",
+    "zod": "^3.19.0"
   },
   "devDependencies": {
     "@rocketseat/eslint-config": "^1.1.3",

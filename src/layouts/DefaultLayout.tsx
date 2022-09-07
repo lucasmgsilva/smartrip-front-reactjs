@@ -3,6 +3,8 @@ import { Box, Flex, useBreakpointValue } from '@chakra-ui/react'
 import { Header } from '../components/Header'
 import { Sidebar } from '../components/Sidebar'
 import { useSidebar } from '../contexts/SidebarContext'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export function DefaultLayout() {
   const { isExtendedVersion } = useSidebar()
@@ -20,6 +22,14 @@ export function DefaultLayout() {
           <Outlet />
         </Box>
       </Flex>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        closeOnClick={true}
+        pauseOnHover={true}
+        draggable={true}
+      />
     </Flex>
   )
 }
