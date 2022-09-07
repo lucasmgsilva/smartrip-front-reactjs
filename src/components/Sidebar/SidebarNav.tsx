@@ -1,5 +1,4 @@
 import { Stack } from '@chakra-ui/react'
-import { GiWaterSplash } from 'react-icons/gi'
 import { HiHome } from 'react-icons/hi'
 import { FaBusAlt, FaRoute } from 'react-icons/fa'
 import { MdAltRoute } from 'react-icons/md'

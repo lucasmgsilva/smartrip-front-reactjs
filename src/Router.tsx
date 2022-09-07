@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
+import { Trips } from './pages/Trips'
 
 export function Router() {
   return (
@@ -14,7 +15,7 @@ export function Router() {
 
         <Route path="/usuarios" element={<Home />} />
 
-        <Route path="/viagens" element={<Home />} />
+        <Route path="/viagens" element={<Trips />} />
       </Route>
     </Routes>
   )
