@@ -1,43 +1,34 @@
 import {
   Icon,
+  Link as ChakraLink,
   Text,
   LinkProps as ChakraLinkProps,
-  Link as ChakraLink,
-  useDisclosure,
-  Flex,
 } from '@chakra-ui/react'
 import { ElementType } from 'react'
 import { ActiveLink } from '../ActiveLink'
-import { VscCircleFilled } from 'react-icons/vsc'
 
 interface NavLinkProps extends ChakraLinkProps {
+  icon: ElementType
+  children: string
   to: string
-  title: string
-  icon?: ElementType
+  shouldMatchExactHref?: boolean
 }
 
-export function NavLink({ to, title, icon }: NavLinkProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
+export function NavLink({
+  icon,
+  children,
+  to,
+  shouldMatchExactHref,
+  ...rest
+}: NavLinkProps) {
   return (
-    <ActiveLink to={to}>
-      <Flex
-        justifyContent="flex-start"
-        alignItems="center"
-        onClick={isOpen ? onClose : onOpen}
-        cursor="pointer"
-        userSelect="none"
-        ml="2"
-        _hover={{
-          textDecoration: 'underline',
-        }}
-        transition="all 0.2s"
-      >
-        <Icon as={icon ?? VscCircleFilled} />
-        <Text ml="2" fontWeight="medium">
-          {title}
+    <ActiveLink to={to} shouldMatchExactHref={shouldMatchExactHref}>
+      <ChakraLink display="flex" alignContent="center" {...rest}>
+        <Icon as={icon} fontSize="20" />
+        <Text ml="4" fontWeight="medium">
+          {children}
         </Text>
-      </Flex>
+      </ChakraLink>
     </ActiveLink>
   )
 }

@@ -49,7 +49,7 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
     setIsSubmitting(true)
 
     try {
-      const response = await api.post('/vehicles', {
+      await api.post('/vehicles', {
         description,
         licensePlate,
         type,
@@ -79,8 +79,8 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
         size="2xl"
       >
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Veículo</ModalHeader>
+        <ModalContent bgColor="gray.800">
+          <ModalHeader fontSize="2xl">Veículo</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Flex as="form" width="100%">
@@ -91,11 +91,12 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     autoFocus
-                    borderColor="base.border"
-                    focusBorderColor="brand.blue"
-                    bgColor="base.input"
-                    color={'base.text'}
-                    _placeholder={{ color: 'base.label' }}
+                    focusBorderColor="pink.500"
+                    bgColor="gray.900"
+                    _hover={{
+                      bgColor: 'gray.900',
+                    }}
+                    variant="filled"
                     size="lg"
                   />
                 </FormControl>
@@ -104,11 +105,12 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
                   <Input
                     value={licensePlate}
                     onChange={(e) => setLicensePlate(e.target.value)}
-                    borderColor="base.border"
-                    focusBorderColor="brand.blue"
-                    bgColor="base.input"
-                    color={'base.text'}
-                    _placeholder={{ color: 'base.label' }}
+                    focusBorderColor="pink.500"
+                    bgColor="gray.900"
+                    _hover={{
+                      bgColor: 'gray.900',
+                    }}
+                    variant="filled"
                     size="lg"
                   />
                 </FormControl>
@@ -118,14 +120,14 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
                     value={type}
                     onChange={(value: VehicleType) => setType(value)}
                   >
-                    <Stack direction="row">
-                      <Radio value="bus" size="lg">
+                    <Stack direction="row" spacing={8}>
+                      <Radio value="bus" colorScheme="pink" size="lg">
                         Ônibus
                       </Radio>
-                      <Radio value="micro_bus" size="lg">
+                      <Radio value="micro_bus" colorScheme="pink" size="lg">
                         Micro-ônibus
                       </Radio>
-                      <Radio value="van" size="lg">
+                      <Radio value="van" colorScheme="pink" size="lg">
                         Van
                       </Radio>
                     </Stack>
@@ -137,7 +139,7 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
 
           <ModalFooter>
             <Button
-              colorScheme="facebook"
+              colorScheme="blue"
               mr={3}
               isLoading={isSubmitting}
               loadingText="Salvando..."
@@ -145,7 +147,9 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
             >
               Salvar
             </Button>
-            <Button onClick={onClose}>Cancelar</Button>
+            <Button colorScheme="yellow" onClick={onClose}>
+              Cancelar
+            </Button>
           </ModalFooter>
         </ModalContent>
       </Modal>

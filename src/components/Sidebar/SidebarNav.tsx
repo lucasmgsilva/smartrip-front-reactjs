@@ -1,30 +1,34 @@
 import { Stack } from '@chakra-ui/react'
+import { NavLink } from './NavLink'
+import { NavSection } from './NavSection'
+
 import { HiHome } from 'react-icons/hi'
 import { FaBusAlt, FaRoute } from 'react-icons/fa'
 import { MdAltRoute } from 'react-icons/md'
 import { TbUsers } from 'react-icons/tb'
-import { NavLink } from './NavLink'
-import { NavSection } from './NavSection'
 
 export function SidebarNav() {
   return (
-    <Stack spacing="8" align="flex-start">
-      <NavSection to="/" title="Início" icon={HiHome} isNavigateLink />
-
-      <NavSection to="/veiculos" icon={FaBusAlt} title="Veículos">
-        <NavLink to="/veiculos" title="Veículos" />
+    <Stack spacing="12" align="flex-start">
+      <NavSection title="Geral">
+        <NavLink to="/" title="Início" icon={HiHome} shouldMatchExactHref>
+          Início
+        </NavLink>
+        <NavLink to="/veiculos" title="Veículos" icon={FaBusAlt}>
+          Veículos
+        </NavLink>
+        <NavLink to="/rotas" title="Rotas" icon={MdAltRoute}>
+          Rotas
+        </NavLink>
+        <NavLink to="/usuarios" title="Usuários" icon={TbUsers}>
+          Usuários
+        </NavLink>
       </NavSection>
 
-      <NavSection to="/rotas" title="Rotas" icon={MdAltRoute}>
-        <NavLink to="/rotas" title="Rotas" />
-      </NavSection>
-
-      <NavSection to="/usuarios" title="Usuários" icon={TbUsers}>
-        <NavLink to="/usuarios" title="Usuários" />
-      </NavSection>
-
-      <NavSection to="/viagens" icon={FaRoute} title="Viagens">
-        <NavLink to="/viagens" title="Viagens" />
+      <NavSection title="Controle">
+        <NavLink to="/viagens" title="Viagens" icon={FaRoute}>
+          Viagens
+        </NavLink>
       </NavSection>
     </Stack>
   )

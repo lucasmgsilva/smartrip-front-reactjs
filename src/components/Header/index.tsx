@@ -19,10 +19,12 @@ export function Header() {
     <Flex
       as="header"
       w="100%"
-      maxWidth={1920}
-      mx="auto"
-      px="4"
+      maxWidth={1480}
       h="20"
+      mx="auto"
+      mt="4"
+      pr="6"
+      pl={['2', '4']}
       align="center"
     >
       <IconButton

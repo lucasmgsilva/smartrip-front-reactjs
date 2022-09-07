@@ -1,7 +1,5 @@
 import { cloneElement, ReactElement } from 'react'
 import { NavLink, NavLinkProps, useLocation } from 'react-router-dom'
-import { useSidebar } from '../contexts/SidebarContext'
-import { useSidebarDrawer } from '../contexts/SidebarDrawerContext'
 
 interface ActiveLinkProps extends NavLinkProps {
   children: ReactElement
@@ -14,16 +12,7 @@ export function ActiveLink({
   ...rest
 }: ActiveLinkProps) {
   const { pathname } = useLocation()
-  const disclosure = useSidebarDrawer()
-  const { isExtendedVersion } = useSidebar()
-
   let isActive = false
-
-  function handleLinkClick() {
-    if (isExtendedVersion) {
-      disclosure.onClose()
-    }
-  }
 
   if (shouldMatchExactHref && pathname === rest.to) {
     isActive = true
@@ -34,9 +23,9 @@ export function ActiveLink({
   }
 
   return (
-    <NavLink {...rest} onClick={handleLinkClick}>
+    <NavLink {...rest}>
       {cloneElement(children, {
-        color: isActive ? 'brand.blue' : 'base.title',
+        color: isActive ? 'pink.400' : 'gray.50',
       })}
     </NavLink>
   )

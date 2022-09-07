@@ -14,11 +14,11 @@ export function DefaultLayout() {
   })
 
   return (
-    <Flex h="100vh" direction="column">
+    <Flex minH="100vh" direction="column">
       <Header />
-      <Flex w="100%" maxWidth={1920} flex="1" mx="auto">
+      <Flex w="100%" my="6" maxWidth={1480} mx="auto" px="6">
         {(isExtendedVersion || isDrawerSidebar) && <Sidebar />}
-        <Box flex="1" borderRadius={8} bg="base.card" p="6" mx="4" mb="4">
+        <Box flex="1" borderRadius={8} bg="gray.800" p="8">
           <Outlet />
         </Box>
       </Flex>
@@ -29,6 +29,7 @@ export function DefaultLayout() {
         closeOnClick={true}
         pauseOnHover={true}
         draggable={true}
+        theme="colored"
       />
     </Flex>
   )

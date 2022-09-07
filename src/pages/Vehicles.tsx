@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Heading,
+  Icon,
   Table,
   TableContainer,
   Tbody,
@@ -13,6 +14,7 @@ import {
   useDisclosure,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
+import { RiAddLine } from 'react-icons/ri'
 import { toast } from 'react-toastify'
 import { VehiclesModal } from '../modals/VehicleModal'
 import { api } from '../services/api'
@@ -58,15 +60,23 @@ export function Vehicles() {
 
   return (
     <Box>
-      <Flex justifyContent="space-between">
-        <Heading>Veículos</Heading>
-        <Button colorScheme="facebook" onClick={disclosure.onOpen}>
+      <Flex mb="8" justifyContent="space-between" alignItems="center">
+        <Heading size="lg" fontWeight="normal">
+          Veículos
+        </Heading>
+        <Button
+          size="sm"
+          fontSize="sm"
+          colorScheme="pink"
+          leftIcon={<Icon as={RiAddLine} fontSize="20" />}
+          onClick={disclosure.onOpen}
+        >
           Cadastrar Veículo
         </Button>
       </Flex>
-      <Box>
+      <Box overflowX="scroll">
         <TableContainer>
-          <Table variant="striped" colorScheme="gray">
+          <Table variant="striped" colorScheme="whiteAlpha">
             <Thead>
               <Tr>
                 <Th width="50%">Descrição</Th>
