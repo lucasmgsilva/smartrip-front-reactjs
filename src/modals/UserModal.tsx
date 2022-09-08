@@ -61,6 +61,7 @@ export function UserModal({
       setCellPhone('')
       setEducationalInstitution('')
       setType('student')
+      setShow(false)
     } else {
       if (selectedUserId) {
         getVehicle()
