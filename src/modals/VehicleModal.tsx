@@ -13,35 +13,48 @@ import {
   ModalOverlay,
   Radio,
   RadioGroup,
+  Skeleton,
   Stack,
   UseDisclosureReturn,
 } from '@chakra-ui/react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { VehicleType } from '../pages/Vehicles'
+import { Vehicle, VehicleType } from '../pages/Vehicles'
 import { api } from '../services/api'
 
 interface VehicleModalProps {
   disclosure: UseDisclosureReturn
+  onAddVehicle: (vehicle: Vehicle) => void
+  onUpdateVehicle: (vehicle: Vehicle) => void
+  selectedVehicleId?: String | undefined
 }
 
-export function VehiclesModal({ disclosure }: VehicleModalProps) {
+export function VehiclesModal({
+  disclosure,
+  onAddVehicle,
+  onUpdateVehicle,
+  selectedVehicleId,
+}: VehicleModalProps) {
   const { isOpen, onClose } = disclosure
-  const initialRef = useRef(null)
 
+  const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [description, setDescription] = useState('')
   const [licensePlate, setLicensePlate] = useState('')
   const [type, setType] = useState<VehicleType>('bus')
 
-  console.log(description, licensePlate, type)
-
   useEffect(() => {
     if (!isOpen) {
       setDescription('')
       setLicensePlate('')
       setType('bus')
+    } else {
+      if (selectedVehicleId) {
+        getVehicle()
+      } else {
+        setIsLoading(false)
+      }
     }
   }, [isOpen])
 
@@ -49,11 +62,25 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
     setIsSubmitting(true)
 
     try {
-      await api.post('/vehicles', {
-        description,
-        licensePlate,
-        type,
-      })
+      if (!selectedVehicleId) {
+        const response = await api.post('/vehicles', {
+          description,
+          licensePlate,
+          type,
+        })
+        const vehicle = response.data
+
+        onAddVehicle(vehicle)
+      } else {
+        const response = await api.put(`/vehicles/${selectedVehicleId}`, {
+          description,
+          licensePlate,
+          type,
+        })
+        const vehicle = response.data
+
+        onUpdateVehicle(vehicle)
+      }
 
       toast.success('Veículo salvo com sucesso!')
       onClose()
@@ -70,14 +97,31 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
     }
   }
 
+  async function getVehicle() {
+    setIsLoading(true)
+    try {
+      const response = await api.get(`/vehicles/${selectedVehicleId}`)
+      const vehicle = response.data
+
+      setDescription(vehicle.description)
+      setLicensePlate(vehicle.licensePlate)
+      setType(vehicle.type)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Falha ao obter veículo!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <>
-      <Modal
-        initialFocusRef={initialRef}
-        isOpen={isOpen}
-        onClose={onClose}
-        size="2xl"
-      >
+      <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent bgColor="gray.800">
           <ModalHeader fontSize="2xl">Veículo</ModalHeader>
@@ -86,52 +130,64 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
             <Flex as="form" width="100%">
               <Stack spacing={4} flex={1}>
                 <FormControl>
-                  <FormLabel>Descrição</FormLabel>
-                  <Input
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    autoFocus
-                    focusBorderColor="pink.500"
-                    bgColor="gray.900"
-                    _hover={{
-                      bgColor: 'gray.900',
-                    }}
-                    variant="filled"
-                    size="lg"
-                  />
+                  <Skeleton isLoaded={!isLoading}>
+                    <FormLabel>Descrição</FormLabel>
+                  </Skeleton>
+                  <Skeleton isLoaded={!isLoading}>
+                    <Input
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      autoFocus
+                      focusBorderColor="pink.500"
+                      bgColor="gray.900"
+                      _hover={{
+                        bgColor: 'gray.900',
+                      }}
+                      variant="filled"
+                      size="lg"
+                    />
+                  </Skeleton>
                 </FormControl>
                 <FormControl>
-                  <FormLabel>Placa</FormLabel>
-                  <Input
-                    value={licensePlate}
-                    onChange={(e) => setLicensePlate(e.target.value)}
-                    focusBorderColor="pink.500"
-                    bgColor="gray.900"
-                    _hover={{
-                      bgColor: 'gray.900',
-                    }}
-                    variant="filled"
-                    size="lg"
-                  />
+                  <Skeleton isLoaded={!isLoading}>
+                    <FormLabel>Placa</FormLabel>
+                  </Skeleton>
+                  <Skeleton isLoaded={!isLoading}>
+                    <Input
+                      value={licensePlate}
+                      onChange={(e) => setLicensePlate(e.target.value)}
+                      focusBorderColor="pink.500"
+                      bgColor="gray.900"
+                      _hover={{
+                        bgColor: 'gray.900',
+                      }}
+                      variant="filled"
+                      size="lg"
+                    />
+                  </Skeleton>
                 </FormControl>
                 <FormControl>
-                  <FormLabel>Tipo</FormLabel>
-                  <RadioGroup
-                    value={type}
-                    onChange={(value: VehicleType) => setType(value)}
-                  >
-                    <Stack direction="row" spacing={8}>
-                      <Radio value="bus" colorScheme="pink" size="lg">
-                        Ônibus
-                      </Radio>
-                      <Radio value="micro_bus" colorScheme="pink" size="lg">
-                        Micro-ônibus
-                      </Radio>
-                      <Radio value="van" colorScheme="pink" size="lg">
-                        Van
-                      </Radio>
-                    </Stack>
-                  </RadioGroup>
+                  <Skeleton isLoaded={!isLoading}>
+                    <FormLabel>Tipo</FormLabel>
+                  </Skeleton>
+                  <Skeleton isLoaded={!isLoading}>
+                    <RadioGroup
+                      value={type}
+                      onChange={(value: VehicleType) => setType(value)}
+                    >
+                      <Stack direction="row" spacing={8}>
+                        <Radio value="bus" colorScheme="pink" size="lg">
+                          Ônibus
+                        </Radio>
+                        <Radio value="micro_bus" colorScheme="pink" size="lg">
+                          Micro-ônibus
+                        </Radio>
+                        <Radio value="van" colorScheme="pink" size="lg">
+                          Van
+                        </Radio>
+                      </Stack>
+                    </RadioGroup>
+                  </Skeleton>
                 </FormControl>
               </Stack>
             </Flex>
@@ -144,6 +200,7 @@ export function VehiclesModal({ disclosure }: VehicleModalProps) {
               isLoading={isSubmitting}
               loadingText="Salvando..."
               onClick={handleSaveClick}
+              disabled={isLoading || isSubmitting}
             >
               Salvar
             </Button>
