@@ -17,9 +17,12 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { RiAddLine, RiPencilLine } from 'react-icons/ri'
+import { AiOutlineDelete } from 'react-icons/ai'
 import { toast } from 'react-toastify'
 import { VehiclesModal } from '../modals/VehicleModal'
 import { api } from '../services/api'
+import { Dialog } from '../components/Dialog'
+import { useDialog } from '../contexts/DialogContext'
 
 export type VehicleType = 'bus' | 'micro_bus' | 'van'
 
@@ -37,7 +40,8 @@ export interface Vehicle {
 }
 
 export function Vehicles() {
-  const disclosure = useDisclosure()
+  const modalDisclosure = useDisclosure()
+  const dialogDisclosure = useDialog()
 
   const [isLoading, setIsLoading] = useState(true)
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
@@ -78,6 +82,28 @@ export function Vehicles() {
     )
   }
 
+  async function deleteVehicle() {
+    if (selectedVehicleId) {
+      try {
+        await api.delete(`/vehicles/${selectedVehicleId}`)
+
+        setVehicles((state) => state.filter((v) => v._id !== selectedVehicleId))
+
+        toast.success('Veículo removido com sucesso!')
+      } catch (error: any) {
+        if (error?.response?.status === 400) {
+          toast.error('Falha ao remover veículo!')
+        } else {
+          toast.error(
+            'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+          )
+        }
+      } finally {
+        dialogDisclosure.onClose()
+      }
+    }
+  }
+
   useEffect(() => {
     getVehicles()
   }, [])
@@ -95,7 +121,7 @@ export function Vehicles() {
           leftIcon={<Icon as={RiAddLine} fontSize="20" />}
           onClick={() => {
             setSelectedVehicleId(undefined)
-            disclosure.onOpen()
+            modalDisclosure.onOpen()
           }}
         >
           Cadastrar Veículo
@@ -127,18 +153,34 @@ export function Vehicles() {
                       <Td>{vehicle.licensePlate}</Td>
                       <Td>{FriendlyVehicleType[vehicle.type]}</Td>
                       <Td>
-                        <Button
-                          size="sm"
-                          fontSize="sm"
-                          colorScheme="purple"
-                          leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                          onClick={() => {
-                            setSelectedVehicleId(vehicle._id)
-                            disclosure.onOpen()
-                          }}
-                        >
-                          {isWideVersion && 'Editar'}
-                        </Button>
+                        <Flex gap="1">
+                          <Button
+                            size="sm"
+                            fontSize="sm"
+                            colorScheme="purple"
+                            leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
+                            onClick={() => {
+                              setSelectedVehicleId(vehicle._id)
+                              modalDisclosure.onOpen()
+                            }}
+                          >
+                            {isWideVersion && 'Editar'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            fontSize="sm"
+                            colorScheme="red"
+                            leftIcon={
+                              <Icon as={AiOutlineDelete} fontSize="16" />
+                            }
+                            onClick={() => {
+                              setSelectedVehicleId(vehicle._id)
+                              dialogDisclosure.onOpen()
+                            }}
+                          >
+                            {isWideVersion && 'Remover'}
+                          </Button>
+                        </Flex>
                       </Td>
                     </Tr>
                   )
@@ -149,10 +191,17 @@ export function Vehicles() {
         )}
       </Box>
       <VehiclesModal
-        disclosure={disclosure}
+        disclosure={modalDisclosure}
         onAddVehicle={addVehicle}
         onUpdateVehicle={updateVehicle}
         selectedVehicleId={selectedVehicleId}
+      />
+      <Dialog
+        title="Remover Veículo"
+        message={`Tem certeza que deseja remover o veículo "${
+          vehicles.find((v) => v._id === selectedVehicleId)?.description
+        }"? Você não pode desfazer essa ação depois.`}
+        onDeleteAction={deleteVehicle}
       />
     </Box>
   )

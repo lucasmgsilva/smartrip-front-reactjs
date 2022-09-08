@@ -9,6 +9,7 @@ import { SidebarProvider } from './contexts/SidebarContext'
 
 import { theme } from './styles/chakra-ui/themes/default'
 import { ChakraProvider } from '@chakra-ui/react'
+import { DialogProvider } from './contexts/DialogContext'
 
 export function App() {
   return (
@@ -16,9 +17,11 @@ export function App() {
       {/* <ThemeProvider theme={defaultTheme}> */}
       <SidebarDrawerProvider>
         <SidebarProvider>
-          <BrowserRouter>
-            <Router />
-          </BrowserRouter>
+          <DialogProvider>
+            <BrowserRouter>
+              <Router />
+            </BrowserRouter>
+          </DialogProvider>
         </SidebarProvider>
       </SidebarDrawerProvider>
       {/* </ThemeProvider> */}
