@@ -1,5 +1,6 @@
 import { Flex, Icon, IconButton, useBreakpointValue } from '@chakra-ui/react'
 import { RiMenuLine } from 'react-icons/ri'
+import { NavLink } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import { useSidebarDrawer } from '../../contexts/SidebarDrawerContext'
 import { Logo } from './Logo'
@@ -37,7 +38,11 @@ export function Header() {
         lineHeight={0}
       ></IconButton>
 
-      <Logo />
+      <Flex w="56" px="1" justify="space-between" align="center">
+        <NavLink to="/">
+          <Logo />
+        </NavLink>
+      </Flex>
 
       <Flex align="center" ml="auto">
         <NotificationsNav />

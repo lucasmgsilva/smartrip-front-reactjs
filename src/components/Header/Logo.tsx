@@ -1,22 +1,20 @@
-import { Flex, Text } from '@chakra-ui/react'
-import { NavLink } from 'react-router-dom'
+import { Text, TextProps } from '@chakra-ui/react'
 
-export function Logo() {
+interface LogoProps extends TextProps {}
+
+export function Logo({ ...rest }: LogoProps) {
   return (
-    <Flex w="56" px="1" justify="space-between" align="center">
-      <NavLink to="/">
-        <Text
-          fontSize={['2xl', '3xl']}
-          fontWeight="bold"
-          letterSpacing="tight"
-          w="64"
-        >
-          Smar
-          <Text as="span" ml="1" color="pink.500">
-            Trip
-          </Text>
-        </Text>
-      </NavLink>
-    </Flex>
+    <Text
+      fontSize={['2xl', '3xl']}
+      fontWeight="bold"
+      letterSpacing="tight"
+      w="64"
+      {...rest}
+    >
+      Smar
+      <Text as="span" ml="1" color="pink.500">
+        Trip
+      </Text>
+    </Text>
   )
 }
