@@ -36,8 +36,11 @@ const registerFormSchema = zod
     cellPhone: zod.string().length(15, 'Telefone deve ter 15 caracteres'),
     educationalInstitution: zod
       .string()
-      // .min(3, 'Instituição de Ensino deve ter pelo menos 3 caracteres')
-      .max(50, 'Instituição de Ensino deve ter no máximo 50 caracteres'),
+      .max(50, 'Instituição de Ensino deve ter no máximo 50 caracteres')
+      .refine(
+        (value) => value.length === 0 || value.length >= 3,
+        'Instituição de Ensino deve ter pelo menos 3 caracteres',
+      ),
   })
   .refine(({ password, confirmPassword }) => password === confirmPassword, {
     message: 'As senhas devem ser exatamente iguais',
