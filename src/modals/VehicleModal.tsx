@@ -2,6 +2,7 @@ import {
   Button,
   Flex,
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Input,
   Modal,
@@ -20,7 +21,21 @@ import {
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
 import { Vehicle, VehicleType } from '../pages/Vehicles'
+import { useForm } from 'react-hook-form'
+import * as zod from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '../services/api'
+
+const vehicleFormSchema = zod.object({
+  description: zod
+    .string()
+    .min(3, 'Descrição deve ter pelo menos 3 caracteres')
+    .max(25, 'Descrição deve ter no máximo 25 caracteres'),
+  licensePlate: zod.string().length(8, 'Placa deve ter 8 caracteres'),
+  // type: zod.string(),
+})
+
+export type VehicleFormData = zod.infer<typeof vehicleFormSchema>
 
 interface VehicleModalProps {
   disclosure: UseDisclosureReturn
@@ -40,14 +55,18 @@ export function VehiclesModal({
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [description, setDescription] = useState('')
-  const [licensePlate, setLicensePlate] = useState('')
   const [type, setType] = useState<VehicleType>('bus')
+
+  const VehicleForm = useForm<VehicleFormData>({
+    resolver: zodResolver(vehicleFormSchema),
+  })
+
+  const { register, handleSubmit, formState, setValue, reset } = VehicleForm
+  const { errors } = formState
 
   useEffect(() => {
     if (!isOpen) {
-      setDescription('')
-      setLicensePlate('')
+      reset()
       setType('bus')
     } else {
       if (selectedVehicleId) {
@@ -58,14 +77,13 @@ export function VehiclesModal({
     }
   }, [isOpen])
 
-  async function handleSaveClick() {
+  async function handleSaveClick(data: VehicleFormData) {
     setIsSubmitting(true)
 
     try {
       if (!selectedVehicleId) {
         const response = await api.post('/vehicles', {
-          description,
-          licensePlate,
+          ...data,
           type,
         })
         const vehicle = response.data
@@ -73,8 +91,7 @@ export function VehiclesModal({
         onAddVehicle(vehicle)
       } else {
         const response = await api.put(`/vehicles/${selectedVehicleId}`, {
-          description,
-          licensePlate,
+          ...data,
           type,
         })
         const vehicle = response.data
@@ -103,8 +120,8 @@ export function VehiclesModal({
       const response = await api.get(`/vehicles/${selectedVehicleId}`)
       const vehicle = response.data
 
-      setDescription(vehicle.description)
-      setLicensePlate(vehicle.licensePlate)
+      setValue('description', vehicle.description)
+      setValue('licensePlate', vehicle.licensePlate)
       setType(vehicle.type)
     } catch (error: any) {
       if (error?.response?.status === 400) {
@@ -127,16 +144,19 @@ export function VehiclesModal({
           <ModalHeader fontSize="2xl">Veículo</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <Flex as="form" width="100%">
+            <Flex
+              as="form"
+              id="vehicleForm"
+              width="100%"
+              onSubmit={handleSubmit(handleSaveClick)}
+            >
               <Stack spacing={4} flex={1}>
-                <FormControl>
+                <FormControl isInvalid={!!errors?.description}>
                   <Skeleton isLoaded={!isLoading}>
                     <FormLabel>Descrição</FormLabel>
                   </Skeleton>
                   <Skeleton isLoaded={!isLoading}>
                     <Input
-                      value={description}
-                      onChange={(e) => setDescription(e.target.value)}
                       autoFocus
                       focusBorderColor="pink.500"
                       bgColor="gray.900"
@@ -145,17 +165,21 @@ export function VehiclesModal({
                       }}
                       variant="filled"
                       size="lg"
+                      {...register('description')}
                     />
+                    {!!errors?.description?.message && (
+                      <FormErrorMessage>
+                        {errors?.description?.message}
+                      </FormErrorMessage>
+                    )}
                   </Skeleton>
                 </FormControl>
-                <FormControl>
+                <FormControl isInvalid={!!errors?.licensePlate}>
                   <Skeleton isLoaded={!isLoading}>
                     <FormLabel>Placa</FormLabel>
                   </Skeleton>
                   <Skeleton isLoaded={!isLoading}>
                     <Input
-                      value={licensePlate}
-                      onChange={(e) => setLicensePlate(e.target.value)}
                       focusBorderColor="pink.500"
                       bgColor="gray.900"
                       _hover={{
@@ -163,10 +187,16 @@ export function VehiclesModal({
                       }}
                       variant="filled"
                       size="lg"
+                      {...register('licensePlate')}
                     />
+                    {!!errors?.licensePlate?.message && (
+                      <FormErrorMessage>
+                        {errors?.licensePlate?.message}
+                      </FormErrorMessage>
+                    )}
                   </Skeleton>
                 </FormControl>
-                <FormControl>
+                <FormControl /* isInvalid={!!errors?.type} */>
                   <Skeleton isLoaded={!isLoading}>
                     <FormLabel>Tipo</FormLabel>
                   </Skeleton>
@@ -174,6 +204,7 @@ export function VehiclesModal({
                     <RadioGroup
                       value={type}
                       onChange={(value: VehicleType) => setType(value)}
+                      // {...register('type')}
                     >
                       <Stack direction="row" spacing={8}>
                         <Radio value="bus" colorScheme="pink" size="lg">
@@ -187,6 +218,11 @@ export function VehiclesModal({
                         </Radio>
                       </Stack>
                     </RadioGroup>
+                    {/* {!!errors?.type?.message && (
+                      <FormErrorMessage>
+                        {errors?.type?.message}
+                      </FormErrorMessage>
+                    )} */}
                   </Skeleton>
                 </FormControl>
               </Stack>
@@ -195,11 +231,12 @@ export function VehiclesModal({
 
           <ModalFooter>
             <Button
+              type="submit"
+              form="vehicleForm"
               colorScheme="blue"
               mr={3}
               isLoading={isSubmitting}
               loadingText="Salvando..."
-              onClick={handleSaveClick}
               disabled={isLoading || isSubmitting}
             >
               Salvar

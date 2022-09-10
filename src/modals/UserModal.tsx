@@ -108,8 +108,6 @@ export function UserModal({
   }
 
   async function handleSaveClick(data: UserFormData) {
-    console.log(data)
-
     setIsSubmitting(true)
 
     try {
@@ -321,7 +319,7 @@ export function UserModal({
                     )}
                   </Skeleton>
                 </FormControl>
-                <FormControl isInvalid={!!errors?.type}>
+                <FormControl /* isInvalid={!!errors?.type} */>
                   <Skeleton isLoaded={!isLoading}>
                     <FormLabel>Tipo</FormLabel>
                   </Skeleton>
