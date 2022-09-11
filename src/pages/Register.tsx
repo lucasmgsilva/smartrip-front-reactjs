@@ -15,6 +15,9 @@ import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/Header/Logo'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { api } from '../services/api'
 
 const registerFormSchema = zod
   .object({
@@ -59,8 +62,30 @@ export default function Register() {
   const { register, handleSubmit, formState } = RegisterForm
   const { errors } = formState
 
-  function handleRegister(data: RegisterFormData) {
-    console.log(data)
+  async function handleRegister(data: RegisterFormData) {
+    try {
+      await api.post('/users', {
+        ...data,
+      })
+
+      toast.success('Usuário cadastrado com sucesso!')
+
+      setTimeout(() => {
+        navigate('/')
+      }, 1000)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        if (error?.response?.data?.error?.code === 11000) {
+          toast.error('Este Email já está cadastrado.')
+        } else {
+          toast.error('Falha ao cadastrar usuário. Dados inválidos!')
+        }
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    }
   }
 
   function handleNavigateToLogin() {
@@ -123,6 +148,7 @@ export default function Register() {
             <FormControl isInvalid={!!errors?.password}>
               <FormLabel>Senha</FormLabel>
               <Input
+                type="password"
                 focusBorderColor="pink.500"
                 bgColor="gray.900"
                 _hover={{
@@ -139,6 +165,7 @@ export default function Register() {
             <FormControl isInvalid={!!errors?.confirmPassword}>
               <FormLabel>Confirmação da Senha</FormLabel>
               <Input
+                type="password"
                 focusBorderColor="pink.500"
                 bgColor="gray.900"
                 _hover={{
@@ -217,6 +244,15 @@ export default function Register() {
           </Text>
         </Flex>
       </Flex>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        closeOnClick={true}
+        pauseOnHover={true}
+        draggable={true}
+        theme="colored"
+      />
     </Flex>
   )
 }

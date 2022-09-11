@@ -5,7 +5,10 @@ import {
   FormControl,
   FormErrorMessage,
   FormLabel,
+  Icon,
   Input,
+  InputGroup,
+  InputRightElement,
   Link,
   Stack,
   Text,
@@ -15,6 +18,11 @@ import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/Header/Logo'
+import { useState } from 'react'
+import { GrFormView, GrFormViewHide } from 'react-icons/gr'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { api } from '../services/api'
 
 const loginFormSchema = zod.object({
   email: zod
@@ -32,6 +40,8 @@ const loginFormSchema = zod.object({
 export type LoginFormData = zod.infer<typeof loginFormSchema>
 
 export default function Login() {
+  const [show, setShow] = useState(false)
+
   const navigate = useNavigate()
 
   const LoginForm = useForm<LoginFormData>({
@@ -41,12 +51,40 @@ export default function Login() {
   const { register, handleSubmit, formState } = LoginForm
   const { errors } = formState
 
-  function handleLogin(data: LoginFormData) {
-    console.log(data)
+  async function handleLogin(data: LoginFormData) {
+    try {
+      await api.post('/auth', {
+        ...data,
+      })
+
+      toast.success('Usuário logado com sucesso!')
+
+      setTimeout(() => {
+        navigate('/')
+      }, 1000)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        if (
+          error?.response?.data.error.message === 'E-mail ou senha inválidos.'
+        ) {
+          toast.error('E-mail ou senha inválidos.')
+        } else {
+          toast.error('Usuário não encontrado.')
+        }
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    }
   }
 
   function handleNavigateToRegister() {
     navigate('/register')
+  }
+
+  function handleShowPassword() {
+    setShow(!show)
   }
 
   return (
@@ -83,16 +121,28 @@ export default function Login() {
           </FormControl>
           <FormControl isInvalid={!!errors?.password}>
             <FormLabel>Senha</FormLabel>
-            <Input
-              focusBorderColor="pink.500"
-              bgColor="gray.900"
-              _hover={{
-                bgColor: 'gray.900',
-              }}
-              variant="filled"
-              size="lg"
-              {...register('password')}
-            />
+            <InputGroup>
+              <Input
+                type={show ? 'text' : 'password'}
+                focusBorderColor="pink.500"
+                bgColor="gray.900"
+                _hover={{
+                  bgColor: 'gray.900',
+                }}
+                variant="filled"
+                size="lg"
+                {...register('password')}
+              />
+              <InputRightElement width="4rem" height="3rem">
+                <Button h="1.75rem" size="xs" onClick={handleShowPassword}>
+                  {show ? (
+                    <Icon as={GrFormView} fontSize={20} color="red.500" />
+                  ) : (
+                    <Icon as={GrFormViewHide} fontSize={20} color="red.500" />
+                  )}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
             {!!errors?.password?.message && (
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             )}
@@ -118,6 +168,15 @@ export default function Login() {
           </Text>
         </Flex>
       </Flex>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        closeOnClick={true}
+        pauseOnHover={true}
+        draggable={true}
+        theme="colored"
+      />
     </Flex>
   )
 }
