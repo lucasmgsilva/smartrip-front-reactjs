@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Marker } from 'react-map-gl'
+import { Marker as MarkerRMGL } from 'react-map-gl'
 
 interface IconProps {
   size: number
@@ -24,6 +24,6 @@ export const Triangle = styled.img<IconProps>`
   height: ${({ size }) => size}px;
 `
 
-export const MarkerMB = styled(Marker)`
+export const Marker = styled(MarkerRMGL)`
   position: relative;
 `

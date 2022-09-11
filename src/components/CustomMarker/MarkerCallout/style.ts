@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-export const CarCalloutContainer = styled.div`
+export const MarkerCalloutContainer = styled.div`
   align-items: center;
   justify-content: center;
   width: 250px;
@@ -11,21 +11,25 @@ export const CarCalloutContainer = styled.div`
   right: -107.5px;
 `
 
-export const CarCalloutArea = styled.div`
+export const MarkerCalloutArea = styled.div`
   align-items: center;
   background-color: #2d3748;
   padding: 15px;
   border-radius: 8px;
 `
 
-export const CarCalloutText = styled.p`
-  font-weight: bold;
+interface MarkerCalloutTextProps {
+  fontWeight: 'bold' | 'normal'
+}
+
+export const MarkerCalloutText = styled.p<MarkerCalloutTextProps>`
+  font-weight: ${({ fontWeight }) => fontWeight};
   color: white;
   text-align: center;
   font-size: 0.85rem;
 `
 
-export const CarCalloutButton = styled.button.attrs({
+export const MarkerCalloutButton = styled.button.attrs({
   activeOpacity: 0.8,
 })`
   border: 1px solid #ffc107;

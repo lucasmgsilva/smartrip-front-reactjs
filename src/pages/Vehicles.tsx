@@ -24,11 +24,11 @@ import { api } from '../services/api'
 import { Dialog } from '../components/Dialog'
 import { useDialog } from '../contexts/DialogContext'
 
-export type VehicleType = 'bus' | 'micro_bus' | 'van'
+export type VehicleType = 'bus' | 'minibus' | 'van'
 
 const FriendlyVehicleType = {
   bus: 'Ônibus',
-  micro_bus: 'Micro-ônibus',
+  minibus: 'Micro-ônibus',
   van: 'Van',
 }
 

@@ -210,7 +210,7 @@ export function VehiclesModal({
                         <Radio value="bus" colorScheme="pink" size="lg">
                           Ônibus
                         </Radio>
-                        <Radio value="micro_bus" colorScheme="pink" size="lg">
+                        <Radio value="minibus" colorScheme="pink" size="lg">
                           Micro-ônibus
                         </Radio>
                         <Radio value="van" colorScheme="pink" size="lg">

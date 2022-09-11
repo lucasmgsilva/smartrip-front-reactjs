@@ -1,4 +1,4 @@
-import { Icon } from '../CarMarker/style'
+import { Icon } from '../CustomMarker/style'
 import { CarItemContainer, CarItemRow } from './style'
 
 interface CarItemProps {
