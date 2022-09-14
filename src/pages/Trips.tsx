@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Map from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { RTDB } from '../services/RTDB'
-import { onValue } from 'firebase/database'
-import { CarMarker } from '../components/CarMarker'
 import { CarAreaSlider } from '../components/CarAreaSlider'
 import { CarItem } from '../components/CarItem'
 import { Box, Flex, Spinner } from '@chakra-ui/react'
@@ -18,18 +15,6 @@ interface Region {
   latitude: number
   longitude: number
   zoom: number
-}
-
-interface Location {
-  lat: number
-  lng: number
-  speed: number
-}
-
-interface Car {
-  id: string
-  playAlarmSound: boolean
-  location: Location
 }
 
 interface Tracking {
@@ -66,14 +51,23 @@ interface Route {
   passengers_id: string[]
 }
 
+interface Vehicle {
+  _id: string
+  description: string
+  licensePlate: string
+  type: 'bus' | 'minibus' | 'van'
+}
+
 export function Trips() {
   const mapRef = useRef(null) as any
   const zoom = 17
   const [region, setRegion] = useState<Region>()
-  const [cars, setCars] = useState<Car[]>([])
 
   const [trip, setTrip] = useState<Trip | null>(null)
   const [route, setRoute] = useState<Route | null>(null)
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null)
+  const [currentVehicleLocation, setCurrentVehicleLocation] =
+    useState<Tracking | null>(null)
 
   const tripId = '63081c4d555fc889e64545d3'
 
@@ -115,43 +109,66 @@ export function Trips() {
     }
   }
 
+  async function getCurrentVehicle() {
+    try {
+      const response = await api.get(`/vehicles/${trip?.vehicle_id}`)
+      const data = response.data
+      setVehicle(data)
+      console.log('Vehicle: ', data)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Requisição inválida!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      // setIsSubmitting(false)
+    }
+  }
+
+  async function getCurrentVehicleLocation() {
+    try {
+      const response = await api.get(
+        `/trips/${trip?._id}/currentVehicleLocation`,
+      )
+      const data = response.data as Tracking
+      setCurrentVehicleLocation(data)
+      setRegion({
+        latitude: data.lat,
+        longitude: data.lng,
+        zoom,
+      })
+      console.log('Vehicle Location: ', data)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Requisição inválida!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      // setIsSubmitting(false)
+    }
+  }
+
   useEffect(() => {
     if (!trip) {
       console.log('aq')
       getCurrentTrip()
     } else if (!route) {
       getCurrentRoute()
+    } else if (!vehicle) {
+      getCurrentVehicle()
+    } else {
+      getCurrentVehicleLocation()
+      setInterval(() => {
+        getCurrentVehicleLocation()
+      }, 5000)
     }
-  }, [trip, route])
-
-  useEffect(() => {
-    if (!!cars && !region) {
-      if (cars[0]) {
-        setRegion({
-          latitude: cars[0]?.location.lat,
-          longitude: cars[0]?.location.lng,
-          zoom,
-        })
-      }
-    }
-  }, [cars, region])
-
-  useEffect(() => {
-    onValue(RTDB.carsReference, (snapshot) => {
-      const updatedCars = [] as Car[]
-
-      snapshot.forEach((child) => {
-        const newCar = {
-          id: child.key,
-          ...child.val(),
-        }
-        updatedCars.push(newCar)
-        // console.log('Car: ', newCar)
-      })
-
-      setCars(updatedCars)
-    })
-  }, [])
+  }, [trip, route, vehicle])
 
   function handleCarItemClick(location: Location) {
     mapRef.current?.flyTo({
@@ -185,17 +202,18 @@ export function Trips() {
           touchZoomRotate={false}
           doubleClickZoom={false}
         >
-          {cars?.map((car, index) => (
+          {vehicle && currentVehicleLocation && (
             <CustomMarker
-              key={index}
-              type="bus"
+              key={vehicle._id}
+              type={vehicle.type}
               coordinate={{
-                latitude: car?.location?.lat,
-                longitude: car?.location?.lng,
+                latitude: currentVehicleLocation.lat,
+                longitude: currentVehicleLocation.lng,
               }}
-              title={car?.id}
+              title={vehicle.licensePlate}
+              subtitle={vehicle.description}
             />
-          ))}
+          )}
           {route?.stoppingPoints?.map((stoppingPoint) => (
             <CustomMarker
               key={stoppingPoint._id}
@@ -211,14 +229,14 @@ export function Trips() {
         </Map>
       )}
       <CarAreaSlider>
-        {cars?.map((car, index) => (
+        {/* {cars?.map((car, index) => (
           <CarItem
             key={index}
             plate={car?.id}
             speed={car.location.speed}
             onPress={() => handleCarItemClick(car?.location)}
           />
-        ))}
+        ))} */}
       </CarAreaSlider>
     </Box>
   )
