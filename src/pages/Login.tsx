@@ -18,11 +18,12 @@ import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/Header/Logo'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { GrFormView, GrFormViewHide } from 'react-icons/gr'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { api } from '../services/api'
+import { AuthContext } from '../contexts/AuthContext'
 
 const loginFormSchema = zod.object({
   email: zod
@@ -40,6 +41,7 @@ const loginFormSchema = zod.object({
 export type LoginFormData = zod.infer<typeof loginFormSchema>
 
 export default function Login() {
+  const { handleUserAuth } = useContext(AuthContext)
   const [show, setShow] = useState(false)
 
   const navigate = useNavigate()
@@ -53,9 +55,11 @@ export default function Login() {
 
   async function handleLogin(data: LoginFormData) {
     try {
-      await api.post('/auth', {
+      const response = await api.post('/auth', {
         ...data,
       })
+
+      handleUserAuth(response.data._id)
 
       toast.success('Usuário logado com sucesso!')
 
