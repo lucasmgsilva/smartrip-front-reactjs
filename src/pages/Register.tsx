@@ -18,6 +18,8 @@ import { Logo } from '../components/Header/Logo'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { api } from '../services/api'
+import { useContext } from 'react'
+import { AuthContext } from '../contexts/AuthContext'
 
 const registerFormSchema = zod
   .object({
@@ -53,6 +55,7 @@ const registerFormSchema = zod
 export type RegisterFormData = zod.infer<typeof registerFormSchema>
 
 export default function Register() {
+  const { handleUserAuth } = useContext(AuthContext)
   const navigate = useNavigate()
 
   const RegisterForm = useForm<RegisterFormData>({
@@ -64,9 +67,11 @@ export default function Register() {
 
   async function handleRegister(data: RegisterFormData) {
     try {
-      await api.post('/users', {
+      const response = await api.post('/users', {
         ...data,
       })
+
+      handleUserAuth(response.data)
 
       toast.success('Usuário cadastrado com sucesso!')
 

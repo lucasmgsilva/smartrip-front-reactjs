@@ -1,8 +1,18 @@
-import { createContext, ReactNode, useState } from "react"
+import { createContext, ReactNode, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
+type UserType = {
+  name: string
+  email: string
+  password: string
+  cellPhone: string
+  educationalInstitution: string
+  type: string
+}
 
 interface AuthContextData {
-  user: string
-  handleUserAuth: (user: string) => void
+  user: UserType
+  handleUserAuth: (user: UserType) => void
   handleUserLogout: () => void
 }
 
@@ -13,14 +23,16 @@ interface AuthContextProviderProps {
 }
 
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
-  const [user, setUser] = useState('')
+  const [user, setUser] = useState({} as UserType)
+  const navigate = useNavigate()
 
-  function handleUserAuth(user: string) {
+  function handleUserAuth(user: UserType) {
     setUser(user)
   }
 
   function handleUserLogout() {
-    setUser('')
+    setUser({} as UserType)
+    navigate('/login')
   }
 
   return (

@@ -59,7 +59,7 @@ export default function Login() {
         ...data,
       })
 
-      handleUserAuth(response.data._id)
+      handleUserAuth(response.data)
 
       toast.success('Usuário logado com sucesso!')
 

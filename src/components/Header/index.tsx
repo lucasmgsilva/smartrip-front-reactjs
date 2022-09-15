@@ -1,6 +1,15 @@
-import { Flex, Icon, IconButton, useBreakpointValue } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  Icon,
+  IconButton,
+  useBreakpointValue,
+} from '@chakra-ui/react'
+import { useContext } from 'react'
+import { MdLogout } from 'react-icons/md'
 import { RiMenuLine } from 'react-icons/ri'
 import { NavLink } from 'react-router-dom'
+import { AuthContext } from '../../contexts/AuthContext'
 import { useSidebar } from '../../contexts/SidebarContext'
 import { useSidebarDrawer } from '../../contexts/SidebarDrawerContext'
 import { Logo } from './Logo'
@@ -8,6 +17,8 @@ import { NotificationsNav } from './NotificationsNav'
 import { Profile } from './Profile'
 
 export function Header() {
+  const { handleUserLogout } = useContext(AuthContext)
+
   const { onOpen } = useSidebarDrawer()
   const { toggleExtendedVersion } = useSidebar()
 
@@ -15,6 +26,10 @@ export function Header() {
     base: false,
     lg: true,
   })
+
+  function handleLogout() {
+    handleUserLogout()
+  }
 
   return (
     <Flex
@@ -45,6 +60,16 @@ export function Header() {
       </Flex>
 
       <Flex align="center" ml="auto">
+        <Button
+          background={'red.500'}
+          color="white.300"
+          _hover={{
+            background: 'red.600',
+          }}
+          onClick={handleLogout}
+        >
+          <MdLogout size={20} />
+        </Button>
         <NotificationsNav />
         <Profile showProfileData={isWideVersion} />
       </Flex>
