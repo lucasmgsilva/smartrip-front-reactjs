@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import Map from 'react-map-gl'
+import Map, { Layer, Source } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { CarAreaSlider } from '../components/CarAreaSlider'
 import { CarItem } from '../components/CarItem'
@@ -7,6 +7,7 @@ import { Box, Flex, Spinner } from '@chakra-ui/react'
 import { api } from '../services/api'
 import { toast } from 'react-toastify'
 import { CustomMarker } from '../components/CustomMarker'
+import { directionsApi } from '../services/directionsApi'
 
 const API_TOKEN =
   'pk.eyJ1IjoibHVjYXNtZ3NpbHZhIiwiYSI6ImNreHF0aGVidDRlaGQybm80OWg2dzVoeXQifQ.exF-UiLvicFXXWKMkn4Kfg'
@@ -68,6 +69,7 @@ export function Trips() {
   const [vehicle, setVehicle] = useState<Vehicle | null>(null)
   const [currentVehicleLocation, setCurrentVehicleLocation] =
     useState<Tracking | null>(null)
+  const [geoJson, setGeoJson] = useState<any>(null)
 
   const tripId = '63081c4d555fc889e64545d3'
 
@@ -140,6 +142,7 @@ export function Trips() {
         longitude: data.lng,
         zoom,
       })
+      getDirections(data)
       console.log('Vehicle Location: ', data)
     } catch (error: any) {
       if (error?.response?.status === 400) {
@@ -154,9 +157,47 @@ export function Trips() {
     }
   }
 
+  async function getDirections(trackingVehicleData: Tracking) {
+    try {
+      const { lng: vehicleLng, lat: vehicleLat } = trackingVehicleData
+      const { lng: stoppingPointLng, lat: stoppingPointLat } =
+        route?.stoppingPoints[0].coordinates!
+
+      const response = await directionsApi.get(
+        `/${vehicleLng},${vehicleLat};${stoppingPointLng},${stoppingPointLat}`,
+      )
+      const data = response.data
+      setGeoJson({
+        type: 'FeatureCollection',
+        features: [{ type: 'Feature', geometry: data.routes[0].geometry }],
+      })
+
+      console.log('Directions: ', data)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Requisição inválida!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      // setIsSubmitting(false)
+    }
+  }
+
+  /*   function handleCarItemClick(location: Location) {
+      mapRef.current?.flyTo({
+        center: [location.lng, location.lat],
+        zoom,
+        speed: 0.75,
+        curve: 1,
+        essential: true,
+      })
+    } */
+
   useEffect(() => {
     if (!trip) {
-      console.log('aq')
       getCurrentTrip()
     } else if (!route) {
       getCurrentRoute()
@@ -169,16 +210,6 @@ export function Trips() {
       }, 5000)
     }
   }, [trip, route, vehicle])
-
-  function handleCarItemClick(location: Location) {
-    mapRef.current?.flyTo({
-      center: [location.lng, location.lat],
-      zoom,
-      speed: 0.75,
-      curve: 1,
-      essential: true,
-    })
-  }
 
   return (
     <Box>
@@ -198,10 +229,25 @@ export function Trips() {
           }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
           ref={mapRef}
-          scrollZoom={false}
+          // scrollZoom={false}
           touchZoomRotate={false}
           doubleClickZoom={false}
         >
+          <Source type="geojson" data={geoJson as any}>
+            <Layer
+              id="route"
+              type="line"
+              source="route"
+              layout={{
+                'line-join': 'round',
+                'line-cap': 'round',
+              }}
+              paint={{
+                'line-color': '#888',
+                'line-width': 8,
+              }}
+            />
+          </Source>
           {vehicle && currentVehicleLocation && (
             <CustomMarker
               key={vehicle._id}
