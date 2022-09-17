@@ -26,7 +26,7 @@ import { useDialog } from '../contexts/DialogContext'
 
 export type VehicleType = 'bus' | 'minibus' | 'van'
 
-const FriendlyVehicleType = {
+export const FriendlyVehicleType = {
   bus: 'Ônibus',
   minibus: 'Micro-ônibus',
   van: 'Van',
