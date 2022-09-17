@@ -23,6 +23,7 @@ interface Tracking {
   lat: number
   lng: number
   speed: number
+  stoppingPointsPerformed_id?: string[]
 }
 
 interface Trip {
@@ -80,13 +81,9 @@ export function Trips() {
       const response = await api.get(`/trips/${tripId}`)
       const data = response.data
 
-      /* if (!isEqual(trip, data)) {
-        setTrip(data)
-        console.log('Trip: ', data)
-      } */
-
-      setTrip(data)
-      console.log('Trip: ', data)
+      if (!isEqual(trip, data)) {
+        setTrip((state) => data)
+      }
     } catch (error: any) {
       if (error?.response?.status === 400) {
         toast.error('Requisição inválida!')
@@ -105,15 +102,17 @@ export function Trips() {
       const response = await api.get(`/routes/${trip?.route_id}`)
       const data: Route = response.data
 
-      // Ordena os pontos de parada pela ordem de execução
-      const dataWithSortedStoppingPoints = (data as Route).stoppingPoints.sort(
-        (a, b) => a.executionOrder - b.executionOrder,
-      )
+      if (!isEqual(route, data)) {
+        // Ordena os pontos de parada pela ordem de execução
+        const dataWithSortedStoppingPoints = (
+          data as Route
+        ).stoppingPoints.sort((a, b) => a.executionOrder - b.executionOrder)
 
-      data.stoppingPoints = dataWithSortedStoppingPoints
+        data.stoppingPoints = dataWithSortedStoppingPoints
 
-      setRoute(data)
-      console.log('Route: ', data)
+        setRoute((state) => data)
+        console.log('Route: ', data)
+      }
     } catch (error: any) {
       if (error?.response?.status === 400) {
         toast.error('Requisição inválida!')
@@ -131,8 +130,11 @@ export function Trips() {
     try {
       const response = await api.get(`/vehicles/${trip?.vehicle_id}`)
       const data = response.data
-      setVehicle(data)
-      console.log('Vehicle: ', data)
+
+      if (!isEqual(vehicle, data)) {
+        setVehicle((state) => data)
+        console.log('Vehicle: ', data)
+      }
     } catch (error: any) {
       if (error?.response?.status === 400) {
         toast.error('Requisição inválida!')
@@ -152,44 +154,19 @@ export function Trips() {
         `/trips/${trip?._id}/currentVehicleLocation`,
       )
       const data = response.data as Tracking
-      setCurrentVehicleLocation(data)
-      setRegion({
-        latitude: data.lat,
-        longitude: data.lng,
-        zoom,
-      })
 
-      if (trip) {
-        // Verifica se existe um ponto de parada na localização em que o ônibus está
-        const stoppingPointMatching = route?.stoppingPoints.find(
-          (stoppingPoint) =>
-            getDistanceBetweenCoordinatesInKm(
-              stoppingPoint.coordinates.lat,
-              stoppingPoint.coordinates.lng,
-              data.lat,
-              data.lng,
-            ) <= 0.025,
-        ) // 25 metros
+      if (!isEqual(currentVehicleLocation, data as Tracking | null)) {
+        setCurrentVehicleLocation((state) => data)
+        setRegion((state) => ({
+          latitude: data.lat,
+          longitude: data.lng,
+          zoom,
+        }))
 
-        if (stoppingPointMatching) {
-          // Se existir um ponto de parada na localização em que o ônibus está, verifica se o ônibus já passou por ele para não registrar a passagem duas vezes
-          const shouldBeInsertStoppingPoint =
-            !trip?.stoppingPointsPerformed_id.includes(
-              stoppingPointMatching._id,
-            )
+        getDirections(data)
 
-          if (shouldBeInsertStoppingPoint) {
-            trip.stoppingPointsPerformed_id = [
-              ...trip.stoppingPointsPerformed_id,
-              stoppingPointMatching._id,
-            ]
-          }
-        }
+        console.log('Vehicle location: ', data)
       }
-
-      getDirections(data)
-
-      console.log('Vehicle Location: ', data)
     } catch (error: any) {
       if (error?.response?.status === 400) {
         toast.error('Requisição inválida!')
@@ -208,8 +185,9 @@ export function Trips() {
       const remainingStoppingPoint =
         route?.stoppingPoints.filter(
           (stoppingPoint) =>
-            !trip?.stoppingPointsPerformed_id.includes(stoppingPoint._id) &&
-            stoppingPoint,
+            !trackingVehicleData.stoppingPointsPerformed_id?.includes(
+              stoppingPoint._id,
+            ),
         ) ?? []
 
       if (remainingStoppingPoint?.length > 0) {
@@ -223,17 +201,17 @@ export function Trips() {
           `/${vehicleLng},${vehicleLat};${stoppingPointLng},${stoppingPointLat}`,
         )
         const data = response.data
-        setDirections({
+        setDirections((state) => ({
           type: 'FeatureCollection',
           features: [{ type: 'Feature', geometry: data.routes[0].geometry }],
-        })
+        }))
 
         console.log('Directions: ', data)
       } else {
-        setDirections({
+        setDirections((state) => ({
           type: 'FeatureCollection',
           features: [{ type: 'Feature', geometry: null }],
-        })
+        }))
         console.log('Não há mais pontos de parada')
       }
     } catch (error: any) {
@@ -262,9 +240,6 @@ export function Trips() {
   useEffect(() => {
     if (!trip) {
       getCurrentTrip()
-      setInterval(() => {
-        getCurrentTrip()
-      }, 5000)
     } else if (!route) {
       getCurrentRoute()
     } else if (!vehicle) {
