@@ -4,7 +4,7 @@ const API_TOKEN =
   'pk.eyJ1IjoibHVjYXNtZ3NpbHZhIiwiYSI6ImNreHF0aGVidDRlaGQybm80OWg2dzVoeXQifQ.exF-UiLvicFXXWKMkn4Kfg'
 
 export const directionsApi = axios.create({
-  baseURL: 'https://api.mapbox.com/directions/v5/mapbox/driving',
+  baseURL: 'https://api.mapbox.com/directions/v5/mapbox/driving-traffic',
 
   params: {
     alternatives: false,

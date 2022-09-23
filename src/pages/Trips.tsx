@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import Map, { Layer, Source } from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import { CarAreaSlider } from '../components/CarAreaSlider'
-import { Box, Flex, Spinner } from '@chakra-ui/react'
+import { Box, Flex, Spinner, Text } from '@chakra-ui/react'
 import { api } from '../services/api'
 import { toast } from 'react-toastify'
 import { CustomMarker } from '../components/CustomMarker'
 import { directionsApi } from '../services/directionsApi'
 import isEqual from 'lodash/isEqual'
-import { getDistanceBetweenCoordinatesInKm } from '../utils/functions'
+import { intervalToDuration } from 'date-fns'
 
 const API_TOKEN =
   'pk.eyJ1IjoibHVjYXNtZ3NpbHZhIiwiYSI6ImNreHF0aGVidDRlaGQybm80OWg2dzVoeXQifQ.exF-UiLvicFXXWKMkn4Kfg'
@@ -74,7 +74,29 @@ export function Trips() {
     useState<Tracking | null>(null)
   const [directions, setDirections] = useState<any>(null)
 
-  const tripId = '63081c4d555fc889e64545d3'
+  const tripId = '632cedf5bf2505eb437fcf1e'
+
+  const tripDistanceInMeter =
+    directions?.routes?.length > 0 ? directions.routes[0].distance : undefined
+
+  const tripDuration =
+    directions?.routes?.length > 0
+      ? intervalToDuration({
+          start: 0,
+          end: directions.routes[0].duration * 1000,
+        })
+      : undefined
+
+  const tripGeoJson = {
+    type: 'FeatureCollection',
+    features: [
+      {
+        type: 'Feature',
+        geometry:
+          directions?.routes?.length > 0 ? directions.routes[0].geometry : null,
+      },
+    ],
+  }
 
   async function getCurrentTrip() {
     try {
@@ -83,6 +105,7 @@ export function Trips() {
 
       if (!isEqual(trip, data)) {
         setTrip((state) => data)
+        console.log('Trip: ', data)
       }
     } catch (error: any) {
       if (error?.response?.status === 400) {
@@ -156,14 +179,24 @@ export function Trips() {
       const data = response.data as Tracking
 
       if (!isEqual(currentVehicleLocation, data as Tracking | null)) {
-        setCurrentVehicleLocation((state) => data)
-        setRegion((state) => ({
-          latitude: data.lat,
-          longitude: data.lng,
-          zoom,
-        }))
+        if (Object.keys(data).length > 0) {
+          setCurrentVehicleLocation((state) => data)
+          setRegion((state) => ({
+            latitude: data.lat,
+            longitude: data.lng,
+            zoom,
+          }))
 
-        getDirections(data)
+          getDirections(data)
+        } else {
+          if (route && route?.stoppingPoints?.length > 0) {
+            setRegion((state) => ({
+              latitude: route.stoppingPoints[0].coordinates.lat,
+              longitude: route.stoppingPoints[0].coordinates.lng,
+              zoom,
+            }))
+          }
+        }
 
         console.log('Vehicle location: ', data)
       }
@@ -195,23 +228,27 @@ export function Trips() {
 
         const { lng: vehicleLng, lat: vehicleLat } = trackingVehicleData
         const { lng: stoppingPointLng, lat: stoppingPointLat } =
-          remainingStoppingPoint[0].coordinates
+          remainingStoppingPoint[
+            trip?.isWayBack ? remainingStoppingPoint.length - 1 : 0
+          ].coordinates
 
         const response = await directionsApi.get(
           `/${vehicleLng},${vehicleLat};${stoppingPointLng},${stoppingPointLat}`,
         )
         const data = response.data
-        setDirections((state) => ({
+        /* setDirections((state) => ({
           type: 'FeatureCollection',
           features: [{ type: 'Feature', geometry: data.routes[0].geometry }],
-        }))
+        })) */
+        setDirections(data)
 
         console.log('Directions: ', data)
       } else {
-        setDirections((state) => ({
+        setDirections(null)
+        /* setDirections((state) => ({
           type: 'FeatureCollection',
           features: [{ type: 'Feature', geometry: null }],
-        }))
+        })) */
         console.log('Não há mais pontos de parada')
       }
     } catch (error: any) {
@@ -274,7 +311,7 @@ export function Trips() {
           touchZoomRotate={false}
           doubleClickZoom={false}
         >
-          <Source type="geojson" data={directions as any}>
+          <Source type="geojson" data={tripGeoJson as any}>
             <Layer
               id="route"
               type="line"
@@ -328,6 +365,28 @@ export function Trips() {
           />
         ))} */}
       </CarAreaSlider>
+      <Box>
+        {tripDistanceInMeter && (
+          <Text>
+            Distância:{' '}
+            {tripDistanceInMeter >= 1000
+              ? (tripDistanceInMeter / 1000).toFixed(2)
+              : tripDistanceInMeter.toFixed(2)}{' '}
+            {tripDistanceInMeter >= 1000 ? 'km' : 'm'}
+          </Text>
+        )}
+        {tripDuration && (
+          <Text>
+            Duração Estimada:
+            {tripDuration.hours > 0
+              ? ` ${tripDuration.hours}h ${tripDuration.minutes}min`
+              : tripDuration.minutes > 0
+              ? ` ${tripDuration.minutes}min ${tripDuration.seconds}seg`
+              : ` ${tripDuration.seconds}seg`}
+          </Text>
+        )}
+        {trip?.endTime && <Text>Viagem encerrada!</Text>}
+      </Box>
     </Box>
   )
 }

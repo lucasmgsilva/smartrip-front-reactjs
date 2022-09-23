@@ -14,6 +14,9 @@ export function SidebarNav() {
         <NavLink to="/" title="Início" icon={HiHome} shouldMatchExactHref>
           Início
         </NavLink>
+      </NavSection>
+
+      <NavSection title="Controle">
         <NavLink to="/veiculos" title="Veículos" icon={FaBusAlt}>
           Veículos
         </NavLink>
@@ -25,7 +28,7 @@ export function SidebarNav() {
         </NavLink>
       </NavSection>
 
-      <NavSection title="Controle">
+      <NavSection title="Monitoramento">
         <NavLink to="/viagens" title="Viagens" icon={FaRoute}>
           Viagens
         </NavLink>
