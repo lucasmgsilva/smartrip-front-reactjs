@@ -3,6 +3,7 @@ import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import { Routes as RoutesPage } from './pages/Routes'
 import { Trips } from './pages/Trips'
 import { Users } from './pages/Users'
 import { Vehicles } from './pages/Vehicles'
@@ -18,7 +19,7 @@ export function Router() {
 
         <Route path="/veiculos" element={<Vehicles />} />
 
-        <Route path="/rotas" element={<Home />} />
+        <Route path="/rotas" element={<RoutesPage />} />
 
         <Route path="/usuarios" element={<Users />} />
 
