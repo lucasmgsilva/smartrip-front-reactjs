@@ -18,6 +18,7 @@ import { Logo } from '../components/Header/Logo'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { api } from '../services/api'
+import { TelMask } from '../utils/masks'
 
 const registerFormSchema = zod
   .object({
@@ -198,6 +199,8 @@ export default function Register() {
                 variant="filled"
                 size="lg"
                 {...register('cellPhone')}
+                maxLength={15}
+                onChange={TelMask}
               />
               {!!errors?.cellPhone?.message && (
                 <FormErrorMessage>

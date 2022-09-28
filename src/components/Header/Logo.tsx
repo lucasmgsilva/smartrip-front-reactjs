@@ -8,7 +8,7 @@ export function Logo({ ...rest }: LogoProps) {
       fontSize={['2xl', '3xl']}
       fontWeight="bold"
       letterSpacing="tight"
-      w="64"
+      // w="64"
       {...rest}
     >
       Smar

@@ -36,7 +36,7 @@ export function Header() {
         aria-label="Abrir Navegação"
         mr="2"
         lineHeight={0}
-      ></IconButton>
+      />
 
       <Flex w="56" px="1" justify="space-between" align="center">
         <NavLink to="/">
