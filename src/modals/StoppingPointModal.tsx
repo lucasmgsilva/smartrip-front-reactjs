@@ -46,6 +46,7 @@ interface StoppingPointModalProps {
   onUpdateStoppingPoint: (route: Route) => void
   selectedRouteId?: string | undefined
   selectedStoppingPointId?: string | undefined
+  coords?: Coordinate | undefined
 }
 
 export function StoppingPointModal({
@@ -54,6 +55,7 @@ export function StoppingPointModal({
   onUpdateStoppingPoint,
   selectedRouteId,
   selectedStoppingPointId,
+  coords,
 }: StoppingPointModalProps) {
   const { isOpen, onClose } = disclosure
 
@@ -74,11 +76,14 @@ export function StoppingPointModal({
   useEffect(() => {
     if (!isOpen) {
       reset()
+      setRoute(undefined)
+      setCoordinates(undefined)
     } else {
       if (selectedStoppingPointId) {
         getStoppingPoint()
       } else {
-        setIsLoading(false)
+        getRoute()
+        setCoordinates(coords)
       }
     }
   }, [isOpen])
@@ -88,14 +93,20 @@ export function StoppingPointModal({
 
     try {
       if (!selectedStoppingPointId) {
-        /* const response = await api.post('/stoppingPoints', {
-          ...data,
-        })
-        const stoppingPoint = response.data
+        const currRoute = { ...route }
 
-        onAddStoppingPoint(stoppingPoint) */
+        currRoute.stoppingPoints?.push({
+          ...data,
+          executionOrder: Number(data.executionOrder),
+          coordinates: coordinates!,
+        })
+
+        const response = await api.put(`/routes/${selectedRouteId}`, currRoute)
+
+        const r = response.data
+
+        onAddStoppingPoint(r)
       } else {
-        console.log('aq')
         const currRoute = { ...route }
 
         const updatedStoppingPoint: StoppingPoint = {
@@ -136,6 +147,25 @@ export function StoppingPointModal({
     }
   }
 
+  async function getRoute() {
+    setIsLoading(true)
+    try {
+      const response = await api.get(`/routes/${selectedRouteId}`)
+      const route = response.data
+      setRoute(route)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Falha ao obter rota do ponto de parada!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   async function getStoppingPoint() {
     setIsLoading(true)
     try {
@@ -149,7 +179,6 @@ export function StoppingPointModal({
       if (stoppingPoint) {
         setValue('description', stoppingPoint.description)
         setValue('executionOrder', String(stoppingPoint.executionOrder))
-        // setValue('coordinates', stoppingPoint.coordinates)
         setCoordinates(stoppingPoint.coordinates)
       }
     } catch (error: any) {

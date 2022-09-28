@@ -46,7 +46,7 @@ export interface Coordinate {
 }
 
 export interface StoppingPoint {
-  _id: string
+  _id?: string
   description: string
   executionOrder: number
   coordinates: Coordinate
@@ -78,24 +78,21 @@ export function StoppingPoints() {
   const [selectedStoppingPointId, setSelectedStoppingPointId] = useState<
     string | undefined
   >()
+  const [coords, setCoords] = useState<Coordinate>()
 
   const { id: RouteId } = useParams()
 
   function handleAddStoppingPoint(e: MapLayerMouseEvent) {
-    const { lat, lng } = e.lngLat
+    if (isInsertMarkerAction) {
+      setSelectedStoppingPointId(undefined)
+      modalDisclosure.onOpen()
 
-    /* setStoppingPoints([
-      ...stoppingPoints,
-      {
-        _id: '1',
-        description: 'teste',
-        executionOrder: 1,
-        coordinates: { lat, lng },
-      },
-    ]) */
+      const { lat, lng } = e.lngLat
 
-    console.log('event: ', e)
-    setIsInsertMarkerAction(false)
+      setCoords({ lat: lat.toFixed(6), lng: lng.toFixed(6) })
+
+      setIsInsertMarkerAction(false)
+    }
   }
 
   const isWideVersion = useBreakpointValue({
@@ -103,11 +100,21 @@ export function StoppingPoints() {
     lg: true,
   })
 
+  function sortRouteStoppingPoints(r: Route) {
+    const sortedStoppingPoints = r.stoppingPoints.sort(
+      (spA, spB) => spA.executionOrder - spB.executionOrder,
+    )
+
+    r.stoppingPoints = sortedStoppingPoints
+
+    return r
+  }
+
   async function getRoute() {
     setIsLoading(true)
     try {
       const response = await api.get(`/routes/${RouteId}`)
-      setRoute(response.data)
+      setRoute(sortRouteStoppingPoints(response.data))
     } catch (error: any) {
       if (error?.response?.status === 400) {
         toast.error('Falha ao obter veículos!')
@@ -121,8 +128,13 @@ export function StoppingPoints() {
     }
   }
 
+  function addStoppingPoint(route: Route) {
+    setRoute(sortRouteStoppingPoints(route))
+    setIsInsertMarkerAction(false)
+  }
+
   function updateStoppingPoint(route: Route) {
-    setRoute(route)
+    setRoute(sortRouteStoppingPoints(route))
   }
 
   async function deleteStoppingPoint() {
@@ -134,7 +146,7 @@ export function StoppingPoints() {
         )
         await api.put(`/routes/${route?._id}`, currRoute)
 
-        setRoute(currRoute)
+        setRoute(sortRouteStoppingPoints(sortRouteStoppingPoints(currRoute)))
         toast.success('Ponto de parada removido com sucesso!')
       } catch (error: any) {
         if (error?.response?.status === 400) {
@@ -202,14 +214,7 @@ export function StoppingPoints() {
         // scrollZoom={false}
         touchZoomRotate={false}
         doubleClickZoom={false}
-        onClick={
-          isInsertMarkerAction
-            ? () => {
-                setSelectedStoppingPointId(undefined)
-                modalDisclosure.onOpen()
-              }
-            : undefined
-        }
+        onClick={handleAddStoppingPoint}
       >
         {route?.stoppingPoints.map((stoppingPoint) => (
           <CustomMarker
@@ -302,10 +307,11 @@ export function StoppingPoints() {
       </Box>
       <StoppingPointModal
         disclosure={modalDisclosure}
-        onAddStoppingPoint={() => {}}
+        onAddStoppingPoint={addStoppingPoint}
         onUpdateStoppingPoint={updateStoppingPoint}
         selectedRouteId={RouteId}
         selectedStoppingPointId={selectedStoppingPointId}
+        coords={coords}
       />
       <Dialog
         title="Remover Ponto de Parada"

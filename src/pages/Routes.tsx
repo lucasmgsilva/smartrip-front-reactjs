@@ -32,7 +32,7 @@ interface Coordinate {
 }
 
 interface StoppingPoint {
-  _id: string
+  _id?: string
   description: string
   executionOrder: number
   coordinates: Coordinate
