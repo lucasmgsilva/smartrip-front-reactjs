@@ -17,12 +17,14 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { RiAddLine, RiPencilLine } from 'react-icons/ri'
+import { MdEditLocationAlt } from 'react-icons/md'
 import { AiOutlineDelete } from 'react-icons/ai'
 import { toast } from 'react-toastify'
 import { RoutesModal } from '../modals/RouteModal'
 import { api } from '../services/api'
 import { Dialog } from '../components/Dialog'
 import { useDialog } from '../contexts/DialogContext'
+import { useNavigate } from 'react-router-dom'
 
 interface Coordinate {
   lat: number
@@ -30,7 +32,7 @@ interface Coordinate {
 }
 
 interface StoppingPoint {
-  _id: string
+  _id?: string
   description: string
   executionOrder: number
   coordinates: Coordinate
@@ -46,6 +48,8 @@ export interface Route {
 export function Routes() {
   const modalDisclosure = useDisclosure()
   const dialogDisclosure = useDialog()
+
+  const navigate = useNavigate()
 
   const [isLoading, setIsLoading] = useState(true)
   const [routes, setRoutes] = useState<Route[]>([])
@@ -164,6 +168,19 @@ export function Routes() {
                             }}
                           >
                             {isWideVersion && 'Editar'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            fontSize="sm"
+                            colorScheme="teal"
+                            leftIcon={
+                              <Icon as={MdEditLocationAlt} fontSize="16" />
+                            }
+                            onClick={() =>
+                              navigate(`/rotas/pontos-de-parada/${route._id}`)
+                            }
+                          >
+                            {isWideVersion && 'Pontos de Parada'}
                           </Button>
                           <Button
                             size="sm"

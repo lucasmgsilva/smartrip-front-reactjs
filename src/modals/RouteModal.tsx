@@ -24,6 +24,10 @@ import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '../services/api'
 
+import Select from 'react-select'
+import { User } from '../pages/Users'
+import { Options } from 'react-select/dist/declarations/src'
+
 const routeFormSchema = zod.object({
   description: zod
     .string()
@@ -52,6 +56,14 @@ export function RoutesModal({
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [route, setRoute] = useState<Route>()
+  const [users, setUsers] = useState<User[]>([])
+
+  const passengersOptions = users.map((user) => ({
+    value: user._id,
+    label: `${user.name} (${user.email})`,
+  }))
+
+  const [selectedPassengers, setSelectedPassengers] = useState<any>()
 
   const RouteForm = useForm<RouteFormData>({
     resolver: zodResolver(routeFormSchema),
@@ -63,37 +75,63 @@ export function RoutesModal({
   useEffect(() => {
     if (!isOpen) {
       reset()
-      /* setType('bus') */
+      setRoute(undefined)
+      setSelectedPassengers([])
     } else {
+      getUsers()
       if (selectedRouteId) {
+        setIsLoading(true)
         getRoute()
+        setIsLoading(false)
       } else {
         setIsLoading(false)
       }
     }
   }, [isOpen])
 
+  useEffect(() => {
+    if (route && route.passengers_id.length > 0 && users.length > 0) {
+      setSelectedPassengers(
+        route.passengers_id.map((passenger_id) => {
+          const passenger = users.find((user) => user._id === passenger_id)
+
+          if (passenger) {
+            return {
+              value: passenger?._id,
+              label: `${passenger.name} (${passenger.email})`,
+            }
+          }
+        }),
+      )
+    }
+  }, [route, users])
+
   async function handleSaveClick(data: RouteFormData) {
     setIsSubmitting(true)
 
     try {
+      const passengers_id = selectedPassengers.map(
+        (selectedPassenger) => selectedPassenger.value,
+      )
+
       if (!selectedRouteId) {
         const response = await api.post('/routes', {
           ...data,
           stoppingPoints: [],
-          passengers_id: [],
+          passengers_id,
         })
-        const r = response.data
+        const rRoute = response.data
 
-        onAddRoute(r)
+        onAddRoute(rRoute)
       } else {
         const response = await api.put(`/routes/${selectedRouteId}`, {
           ...route,
           ...data,
+          passengers_id,
         })
-        const r = response.data
+        const rRoute = response.data
 
-        onUpdateRoute(r)
+        onUpdateRoute(rRoute)
       }
 
       toast.success('Rota salvo com sucesso!')
@@ -111,11 +149,31 @@ export function RoutesModal({
     }
   }
 
+  async function getUsers() {
+    setIsLoading(true)
+    try {
+      const response = await api.get(`/users`)
+      const users = response.data
+
+      setUsers(users)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Falha ao obter usuários!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   async function getRoute() {
     setIsLoading(true)
     try {
       const response = await api.get(`/routes/${selectedRouteId}`)
-      const route = response.data
+      const route: Route = response.data
 
       setValue('description', route.description)
       setRoute(route)
@@ -168,6 +226,26 @@ export function RoutesModal({
                         {errors?.description?.message}
                       </FormErrorMessage>
                     )}
+                  </Skeleton>
+                </FormControl>
+                <FormControl /* isInvalid={!!errors?.users} */>
+                  <Skeleton isLoaded={!isLoading}>
+                    <FormLabel>Passageiros</FormLabel>
+                  </Skeleton>
+                  <Skeleton isLoaded={!isLoading}>
+                    <Select
+                      isMulti
+                      isSearchable
+                      closeMenuOnSelect={false}
+                      value={selectedPassengers}
+                      onChange={setSelectedPassengers}
+                      options={passengersOptions}
+                    />
+                    {/* {!!errors?.description?.message && (
+                      <FormErrorMessage>
+                        {errors?.description?.message}
+                      </FormErrorMessage>
+                    )} */}
                   </Skeleton>
                 </FormControl>
               </Stack>

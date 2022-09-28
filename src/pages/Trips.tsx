@@ -385,7 +385,7 @@ export function Trips() {
               : ` ${tripDuration.seconds}seg`}
           </Text>
         )}
-        {trip?.endTime && <Text>Viagem encerrada!</Text>}
+        {/* {trip?.endTime && <Text>Viagem encerrada!</Text>} */}
       </Box>
     </Box>
   )

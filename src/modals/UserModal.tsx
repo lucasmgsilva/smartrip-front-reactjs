@@ -29,6 +29,7 @@ import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '../services/api'
+import { TelMask } from '../utils/masks'
 
 const userFormSchema = zod.object({
   name: zod
@@ -289,6 +290,8 @@ export function UserModal({
                       variant="filled"
                       size="lg"
                       {...register('cellPhone')}
+                      maxLength={15}
+                      onChange={TelMask}
                     />
                     {!!errors?.cellPhone?.message && (
                       <FormErrorMessage>
