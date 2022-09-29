@@ -1,4 +1,6 @@
-import { Routes, Route } from 'react-router-dom'
+import { useContext } from 'react'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { AuthContext } from './contexts/AuthContext'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
 import Login from './pages/Login'
@@ -8,22 +10,29 @@ import { Users } from './pages/Users'
 import { Vehicles } from './pages/Vehicles'
 
 export function Router() {
+  const { user } = useContext(AuthContext)
+  console.log(user)
+
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      <Route path="/" element={<DefaultLayout />}>
-        <Route path="/" element={<Home />} />
+      {user.name ? (
+        <Route path="/" element={<DefaultLayout />}>
+          <Route path="/" element={<Home />} />
 
-        <Route path="/veiculos" element={<Vehicles />} />
+          <Route path="/veiculos" element={<Vehicles />} />
 
-        <Route path="/rotas" element={<Home />} />
+          <Route path="/rotas" element={<Home />} />
 
-        <Route path="/usuarios" element={<Users />} />
+          <Route path="/usuarios" element={<Users />} />
 
-        <Route path="/viagens" element={<Trips />} />
-      </Route>
+          <Route path="/viagens" element={<Trips />} />
+        </Route>
+      ) : (
+        <Route path="*" element={<Navigate to="/login" />} />
+      )}
     </Routes>
   )
 }

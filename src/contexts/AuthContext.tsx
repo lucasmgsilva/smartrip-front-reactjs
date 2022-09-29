@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from 'react'
+import { createContext, ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 type UserType = {
@@ -28,12 +28,24 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   function handleUserAuth(user: UserType) {
     setUser(user)
+
+    const stateJSON = JSON.stringify(user)
+    localStorage.setItem('@SmarTrip:User-1.0.0', stateJSON)
   }
 
   function handleUserLogout() {
     setUser({} as UserType)
+
+    localStorage.removeItem('@SmarTrip:User-1.0.0')
     navigate('/login')
   }
+
+  useEffect(() => {
+    const user = localStorage.getItem('@SmarTrip:User-1.0.0')
+    if (user) {
+      setUser(JSON.parse(user))
+    }
+  }, [])
 
   return (
     <AuthContext.Provider value={{ user, handleUserAuth, handleUserLogout }}>
