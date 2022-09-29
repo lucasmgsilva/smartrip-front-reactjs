@@ -10,6 +10,7 @@ import { SidebarProvider } from './contexts/SidebarContext'
 import { theme } from './styles/chakra-ui/themes/default'
 import { ChakraProvider } from '@chakra-ui/react'
 import { DialogProvider } from './contexts/DialogContext'
+import { AuthContextProvider } from './contexts/AuthContext'
 
 export function App() {
   return (
@@ -19,7 +20,9 @@ export function App() {
         <SidebarProvider>
           <DialogProvider>
             <BrowserRouter>
-              <Router />
+              <AuthContextProvider>
+                <Router />
+              </AuthContextProvider>
             </BrowserRouter>
           </DialogProvider>
         </SidebarProvider>
