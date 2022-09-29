@@ -30,6 +30,7 @@ import { toast } from 'react-toastify'
 import { AiOutlineDelete } from 'react-icons/ai'
 import { Dialog } from '../components/Dialog'
 import { useDialog } from '../contexts/DialogContext'
+import { FaMapMarkerAlt } from 'react-icons/fa'
 
 const API_TOKEN =
   'pk.eyJ1IjoibHVjYXNtZ3NpbHZhIiwiYSI6ImNreHF0aGVidDRlaGQybm80OWg2dzVoeXQifQ.exF-UiLvicFXXWKMkn4Kfg'
@@ -81,6 +82,16 @@ export function StoppingPoints() {
   const [coords, setCoords] = useState<Coordinate>()
 
   const { id: RouteId } = useParams()
+
+  function navigateTo(coordinates: Coordinate) {
+    mapRef.current?.flyTo({
+      center: [coordinates.lng, coordinates.lat],
+      zoom: 14,
+      speed: 0.75,
+      curve: 1,
+      essential: true,
+    })
+  }
 
   function handleAddStoppingPoint(e: MapLayerMouseEvent) {
     if (isInsertMarkerAction) {
@@ -269,6 +280,22 @@ export function StoppingPoints() {
                       <Td>{stoppingPoint.coordinates.lng}</Td>
                       <Td>
                         <Flex gap="1">
+                          <Button
+                            size="sm"
+                            fontSize="sm"
+                            colorScheme="teal"
+                            leftIcon={
+                              <Icon as={FaMapMarkerAlt} fontSize="16" />
+                            }
+                            onClick={() =>
+                              navigateTo({
+                                lat: stoppingPoint.coordinates.lat,
+                                lng: stoppingPoint.coordinates.lng,
+                              } as Coordinate)
+                            }
+                          >
+                            {isWideVersion && 'Seguir'}
+                          </Button>
                           <Button
                             size="sm"
                             fontSize="sm"
