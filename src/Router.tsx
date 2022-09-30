@@ -4,7 +4,6 @@ import { AuthContext } from './contexts/AuthContext'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
 import Login from './pages/Login'
-import { ManagementRoute } from './pages/ManagementRoute'
 import Register from './pages/Register'
 import { Routes as RoutesPage } from './pages/Routes'
 import { StoppingPoints } from './pages/StoppingPoints'
@@ -14,7 +13,6 @@ import { Vehicles } from './pages/Vehicles'
 
 export function Router() {
   const { user } = useContext(AuthContext)
-  console.log(user)
 
   return (
     <Routes>

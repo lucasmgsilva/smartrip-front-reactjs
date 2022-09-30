@@ -26,7 +26,6 @@ import { api } from '../services/api'
 
 import Select from 'react-select'
 import { User } from '../pages/Users'
-import { Options } from 'react-select/dist/declarations/src'
 
 const routeFormSchema = zod.object({
   description: zod

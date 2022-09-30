@@ -1,7 +1,15 @@
-import { HStack, Icon } from '@chakra-ui/react'
-import { RiNotificationLine } from 'react-icons/ri'
+import { Button, HStack } from '@chakra-ui/react'
+import { useContext } from 'react'
+import { MdLogout } from 'react-icons/md'
+import { AuthContext } from '../../contexts/AuthContext'
 
 export function NotificationsNav() {
+  const { handleUserLogout } = useContext(AuthContext)
+
+  function handleLogout() {
+    handleUserLogout()
+  }
+
   return (
     <HStack
       spacing={['6', '8']}
@@ -12,7 +20,17 @@ export function NotificationsNav() {
       borderRightWidth={1}
       borderColor="gray.700"
     >
-      <Icon as={RiNotificationLine} fontSize="20" />
+      {/* <Icon as={RiNotificationLine} fontSize="20" /> */}
+      <Button
+        background={'red.500'}
+        color="white.300"
+        _hover={{
+          background: 'red.600',
+        }}
+        onClick={handleLogout}
+      >
+        <MdLogout size={20} />
+      </Button>
     </HStack>
   )
 }

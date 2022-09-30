@@ -61,7 +61,7 @@ export default function Login() {
 
       handleUserAuth(response.data)
 
-      toast.success('Usuário logado com sucesso!')
+      toast.success('Login realizado com sucesso!')
 
       setTimeout(() => {
         navigate('/')
@@ -151,7 +151,7 @@ export default function Login() {
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             )}
           </FormControl>
-          <Link color="blue.500">Esqueci minha senha</Link>
+          {/* <Link color="blue.500">Esqueci minha senha</Link> */}
         </Stack>
         <Button
           type="submit"

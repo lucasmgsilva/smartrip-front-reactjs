@@ -237,16 +237,6 @@ export function StoppingPointModal({
                     <FormLabel>Ordem de Execução</FormLabel>
                   </Skeleton>
                   <Skeleton isLoaded={!isLoading}>
-                    {/* <Input
-                      focusBorderColor="pink.500"
-                      bgColor="gray.900"
-                      _hover={{
-                        bgColor: 'gray.900',
-                      }}
-                      variant="filled"
-                      size="lg"
-                      {...register('licensePlate')}
-                    /> */}
                     <Select {...register('executionOrder')}>
                       {Array(25)
                         .fill(0)

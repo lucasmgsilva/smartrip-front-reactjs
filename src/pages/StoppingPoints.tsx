@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Map from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
-import { CarAreaSlider } from '../components/CarAreaSlider'
 import {
   Box,
   Button,
@@ -193,7 +192,6 @@ export function StoppingPoints() {
             size="sm"
             fontSize="sm"
             colorScheme="pink"
-            // opacity={isInsertMarkerAction ? 0.75 : 1}
             filter={isInsertMarkerAction ? 'brightness(0.5)' : 'brightness(1)'}
             leftIcon={<Icon as={RiAddLine} fontSize="20" />}
             onClick={() => {
@@ -212,45 +210,36 @@ export function StoppingPoints() {
         )}
       </Flex>
 
-      {/* {!!region && ( */}
-      <Map
-        mapboxAccessToken={API_TOKEN}
-        initialViewState={region}
-        style={{
-          minHeight: '70vh',
-          borderRadius: 5,
-        }}
-        mapStyle="mapbox://styles/mapbox/streets-v11"
-        ref={mapRef}
-        // scrollZoom={false}
-        touchZoomRotate={false}
-        doubleClickZoom={false}
-        onClick={handleAddStoppingPoint}
-      >
-        {route?.stoppingPoints.map((stoppingPoint) => (
-          <CustomMarker
-            key={stoppingPoint._id}
-            type="stoppingPoint"
-            coordinate={{
-              latitude: stoppingPoint.coordinates.lat,
-              longitude: stoppingPoint.coordinates.lng,
-            }}
-            title={`PONTO DE PARADA (${stoppingPoint.executionOrder})`}
-            subtitle={stoppingPoint.description}
-          />
-        ))}
-      </Map>
-      {/* )} */}
-      <CarAreaSlider>
-        {/* {cars?.map((car, index) => (
-          <CarItem
-            key={index}
-            plate={car?.id}
-            speed={car.location.speed}
-            onPress={() => handleCarItemClick(car?.location)}
-          />
-        ))} */}
-      </CarAreaSlider>
+      {!!region && (
+        <Map
+          mapboxAccessToken={API_TOKEN}
+          initialViewState={region}
+          style={{
+            minHeight: '70vh',
+            borderRadius: 5,
+          }}
+          mapStyle="mapbox://styles/mapbox/streets-v11"
+          ref={mapRef}
+          // scrollZoom={false}
+          touchZoomRotate={false}
+          doubleClickZoom={false}
+          onClick={handleAddStoppingPoint}
+        >
+          {route?.stoppingPoints.map((stoppingPoint) => (
+            <CustomMarker
+              key={stoppingPoint._id}
+              type="stoppingPoint"
+              coordinate={{
+                latitude: stoppingPoint.coordinates.lat,
+                longitude: stoppingPoint.coordinates.lng,
+              }}
+              title={`PONTO DE PARADA (${stoppingPoint.executionOrder})`}
+              subtitle={stoppingPoint.description}
+            />
+          ))}
+        </Map>
+      )}
+
       <Box mt="12">
         {isLoading ? (
           Array(15)
