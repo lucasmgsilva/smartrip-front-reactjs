@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
   Icon,
   SimpleGrid,
   Skeleton,
@@ -320,6 +321,11 @@ export function Trips() {
 
   return (
     <Box>
+      <Flex mb="8" justifyContent="space-between" alignItems="center">
+        <Heading size="lg" fontWeight="normal">
+          Viagens
+        </Heading>
+      </Flex>
       {!region && (
         <Flex justify="center" mt="20">
           <Spinner size="lg" />

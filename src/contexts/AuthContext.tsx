@@ -1,18 +1,19 @@
 import { createContext, ReactNode, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { UserType } from '../pages/Users'
 
-type UserType = {
+interface User {
   name: string
   email: string
   password: string
   cellPhone: string
   educationalInstitution: string
-  type: string
+  type: UserType
 }
 
 interface AuthContextData {
-  user: UserType
-  handleUserAuth: (user: UserType) => void
+  user: User
+  handleUserAuth: (user: User) => void
   handleUserLogout: () => void
 }
 
@@ -23,10 +24,10 @@ interface AuthContextProviderProps {
 }
 
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
-  const [user, setUser] = useState({} as UserType)
+  const [user, setUser] = useState({} as User)
   const navigate = useNavigate()
 
-  function handleUserAuth(user: UserType) {
+  function handleUserAuth(user: User) {
     setUser(user)
 
     const stateJSON = JSON.stringify(user)
@@ -34,7 +35,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }
 
   function handleUserLogout() {
-    setUser({} as UserType)
+    setUser({} as User)
 
     localStorage.removeItem('@SmarTrip:User-1.0.0')
     navigate('/login')
