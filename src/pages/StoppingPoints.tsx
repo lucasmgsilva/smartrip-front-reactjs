@@ -7,6 +7,7 @@ import {
   Flex,
   Heading,
   Icon,
+  SimpleGrid,
   Skeleton,
   Spinner,
   Table,
@@ -184,7 +185,12 @@ export function StoppingPoints() {
         </Flex>
       )}
       <Flex mb="8" flexDir="column" width="100%">
-        <Flex flex={1} justifyContent="space-between">
+        <Flex
+          flexDir={['column', null, null, 'row']}
+          flex={1}
+          justifyContent="space-between"
+          rowGap="4"
+        >
           <Heading size="lg" fontWeight="normal">
             Pontos de Parada
           </Heading>
@@ -202,7 +208,7 @@ export function StoppingPoints() {
           </Button>
         </Flex>
         {route?.description ? (
-          <Heading size="md" fontWeight="normal">
+          <Heading size="md" fontWeight="normal" mt={['4', null, null, 0]}>
             {route?.description}
           </Heading>
         ) : (
@@ -240,7 +246,7 @@ export function StoppingPoints() {
         </Map>
       )}
 
-      <Box mt="12">
+      <SimpleGrid mt="12">
         {isLoading ? (
           Array(15)
             .fill(0)
@@ -320,7 +326,7 @@ export function StoppingPoints() {
             </Table>
           </TableContainer>
         )}
-      </Box>
+      </SimpleGrid>
       <StoppingPointModal
         disclosure={modalDisclosure}
         onAddStoppingPoint={addStoppingPoint}

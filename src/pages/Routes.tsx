@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   Icon,
+  SimpleGrid,
   Skeleton,
   Table,
   TableContainer,
@@ -131,7 +132,7 @@ export function Routes() {
           Cadastrar Rota
         </Button>
       </Flex>
-      <Box>
+      <SimpleGrid>
         {isLoading ? (
           Array(15)
             .fill(0)
@@ -205,7 +206,7 @@ export function Routes() {
             </Table>
           </TableContainer>
         )}
-      </Box>
+      </SimpleGrid>
       <RoutesModal
         disclosure={modalDisclosure}
         onAddRoute={addRoute}

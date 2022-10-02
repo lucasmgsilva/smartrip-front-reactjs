@@ -332,7 +332,10 @@ export function UserModal({
                       onChange={(value: UserType) => setType(value)}
                       // {...register('type')}
                     >
-                      <Stack direction="row" spacing={8}>
+                      <Stack
+                        direction={['column', null, null, 'row']}
+                        spacing={[2, null, null, 8]}
+                      >
                         <Radio value="student" colorScheme="pink" size="lg">
                           Estudante
                         </Radio>

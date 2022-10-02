@@ -24,7 +24,7 @@ export function Identity({
       gap="10"
       bg="whiteAlpha.100"
       px="8"
-      py="16"
+      py="8"
       borderRadius="8px"
     >
       <Heading size="lg" fontWeight="bold" textAlign="center">
@@ -37,15 +37,8 @@ export function Identity({
         gap="12"
       >
         <Flex>
-          {/* <Avatar
-            name="Lucas Matheus"
-            title="Lucas matheus"
-            size="2xl"
-            maxH={192}
-            maxW={192}
-          /> */}
-          <Box borderRadius="100%" bg="whiteAlpha.200" p="8">
-            <Icon as={BiUser} width={128} height={128} lineHeight="0" />
+          <Box borderRadius="100%" bg="whiteAlpha.200" p="6">
+            <Icon as={BiUser} width={20} height={20} lineHeight="0" />
           </Box>
         </Flex>
         <SimpleGrid
@@ -54,10 +47,6 @@ export function Identity({
           columnGap="16"
           fontSize={18}
         >
-          {/* <Box>
-            <Text fontWeight="bold">Tipo</Text>
-            <Text fontStyle="italic">{type || 'Nenhum'}</Text>
-          </Box> */}
           <Box>
             <Text fontWeight="bold">Nome</Text>
             <Text fontStyle="italic">{name}</Text>

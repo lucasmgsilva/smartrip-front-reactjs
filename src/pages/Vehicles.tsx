@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   Icon,
+  SimpleGrid,
   Skeleton,
   Table,
   TableContainer,
@@ -127,7 +128,7 @@ export function Vehicles() {
           Cadastrar Veículo
         </Button>
       </Flex>
-      <Box>
+      <SimpleGrid>
         {isLoading ? (
           Array(15)
             .fill(0)
@@ -189,7 +190,7 @@ export function Vehicles() {
             </Table>
           </TableContainer>
         )}
-      </Box>
+      </SimpleGrid>
       <VehiclesModal
         disclosure={modalDisclosure}
         onAddVehicle={addVehicle}

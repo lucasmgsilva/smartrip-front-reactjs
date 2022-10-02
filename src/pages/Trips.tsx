@@ -406,27 +406,31 @@ export function Trips() {
               Seguir Veículo
             </Button>
           </Skeleton>
-          <Skeleton isLoaded={directions !== null}>
-            <InfoMonitor
-              icon={MdOutlineSpeed}
-              title="Velocidade Atual"
-              value={vehicleSpeed}
-            />
-          </Skeleton>
-          <Skeleton isLoaded={directions != null}>
-            <InfoMonitor
-              icon={GiPathDistance}
-              title="Distância"
-              value={tripDistanceExtended}
-            />
-          </Skeleton>
-          <Skeleton isLoaded={directions !== null}>
-            <InfoMonitor
-              icon={AiOutlineFieldTime}
-              title="Duração Estimada"
-              value={tripDurationExtended}
-            />
-          </Skeleton>
+          {!trip?.endTime && (
+            <>
+              <Skeleton isLoaded={directions !== null}>
+                <InfoMonitor
+                  icon={MdOutlineSpeed}
+                  title="Velocidade Atual"
+                  value={vehicleSpeed}
+                />
+              </Skeleton>
+              <Skeleton isLoaded={directions != null}>
+                <InfoMonitor
+                  icon={GiPathDistance}
+                  title="Distância"
+                  value={tripDistanceExtended}
+                />
+              </Skeleton>
+              <Skeleton isLoaded={directions !== null}>
+                <InfoMonitor
+                  icon={AiOutlineFieldTime}
+                  title="Duração Estimada"
+                  value={tripDurationExtended}
+                />
+              </Skeleton>
+            </>
+          )}
         </SimpleGrid>
       </Box>
     </Box>

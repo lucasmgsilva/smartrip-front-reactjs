@@ -206,7 +206,10 @@ export function VehiclesModal({
                       onChange={(value: VehicleType) => setType(value)}
                       // {...register('type')}
                     >
-                      <Stack direction="row" spacing={8}>
+                      <Stack
+                        direction={['column', null, null, 'row']}
+                        spacing={[2, null, null, 8]}
+                      >
                         <Radio value="bus" colorScheme="pink" size="lg">
                           Ônibus
                         </Radio>

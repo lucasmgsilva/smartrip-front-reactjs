@@ -21,11 +21,11 @@ export function Header() {
       as="header"
       w="100%"
       maxWidth={1480}
-      h="20"
+      h="14"
       mx="auto"
       mt="4"
-      pr="6"
-      pl={['2', '4']}
+      pr="4"
+      pl={'2'}
       align="center"
     >
       <IconButton
@@ -45,7 +45,6 @@ export function Header() {
       </Flex>
 
       <Flex align="center" ml="auto">
-        <NotificationsNav />
         <Profile showProfileData={isWideVersion} />
       </Flex>
     </Flex>

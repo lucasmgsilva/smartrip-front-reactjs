@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   Icon,
+  SimpleGrid,
   Skeleton,
   Table,
   TableContainer,
@@ -126,7 +127,7 @@ export function Users() {
           Cadastrar Usuário
         </Button>
       </Flex>
-      <Box>
+      <SimpleGrid>
         {isLoading ? (
           Array(15)
             .fill(0)
@@ -192,7 +193,7 @@ export function Users() {
             </Table>
           </TableContainer>
         )}
-      </Box>
+      </SimpleGrid>
       <UserModal
         disclosure={modalDisclosure}
         onAddUser={addUser}
