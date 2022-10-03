@@ -68,12 +68,11 @@ export default function Login() {
       }, 1000)
     } catch (error: any) {
       if (error?.response?.status === 400) {
-        if (
-          error?.response?.data.error.message === 'E-mail ou senha inválidos.'
-        ) {
+        const errorMessage = error?.response?.data.error.message
+        if (errorMessage === 'E-mail ou senha inválidos.') {
           toast.error('E-mail ou senha inválidos.')
-        } else {
-          toast.error('Usuário não encontrado.')
+        } else if (errorMessage === 'Usuário aguardando aprovação.') {
+          toast.error('Usuário aguardando aprovação.')
         }
       } else {
         toast.error(
