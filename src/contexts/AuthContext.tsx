@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { UserType } from '../pages/Users'
 
 interface User {
+  _id: string
   name: string
   email: string
-  password: string
+  password?: string
   cellPhone: string
   educationalInstitution: string
   type: UserType
@@ -43,6 +44,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   useEffect(() => {
     const user = localStorage.getItem('@SmarTrip:User-1.0.0')
+
     if (user) {
       setUser(JSON.parse(user))
     }

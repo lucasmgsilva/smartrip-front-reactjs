@@ -11,17 +11,18 @@ import {
   Skeleton,
   Spinner,
 } from '@chakra-ui/react'
-import { api } from '../services/api'
+import { api } from '../../services/api'
 import { toast } from 'react-toastify'
-import { CustomMarker } from '../components/CustomMarker'
-import { directionsApi } from '../services/directionsApi'
+import { CustomMarker } from '../../components/CustomMarker'
+import { directionsApi } from '../../services/directionsApi'
 import isEqual from 'lodash/isEqual'
 import { intervalToDuration } from 'date-fns'
-import { InfoMonitor } from '../components/InfoMonitor'
+import { InfoMonitor } from '../../components/InfoMonitor'
 import { GiPathDistance } from 'react-icons/gi'
 import { AiOutlineFieldTime } from 'react-icons/ai'
 import { MdOutlineSpeed } from 'react-icons/md'
 import { GrDirections } from 'react-icons/gr'
+import { useParams } from 'react-router'
 
 const API_TOKEN =
   'pk.eyJ1IjoibHVjYXNtZ3NpbHZhIiwiYSI6ImNreHF0aGVidDRlaGQybm80OWg2dzVoeXQifQ.exF-UiLvicFXXWKMkn4Kfg'
@@ -75,7 +76,7 @@ interface Vehicle {
   type: 'bus' | 'minibus' | 'van'
 }
 
-export function Trips() {
+export function TripMonitor() {
   const mapRef = useRef(null) as any
   const zoom = 17
   const [region, setRegion] = useState<Region>()
@@ -87,7 +88,8 @@ export function Trips() {
     useState<Tracking | null>(null)
   const [directions, setDirections] = useState<any>(null)
 
-  const tripId = '632cedf5bf2505eb437fcf1e'
+  // const tripId = '632cedf5bf2505eb437fcf1e'
+  const { id: tripId } = useParams()
 
   const tripDistanceInMeter =
     directions?.routes?.length > 0 ? directions.routes[0].distance : undefined

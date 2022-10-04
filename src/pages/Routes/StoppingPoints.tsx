@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import Map from 'react-map-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 import {
@@ -20,17 +20,18 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { CustomMarker } from '../components/CustomMarker'
+import { CustomMarker } from '../../components/CustomMarker'
 import { MapLayerMouseEvent } from 'mapbox-gl'
 import { RiAddLine, RiPencilLine } from 'react-icons/ri'
-import { StoppingPointModal } from '../modals/StoppingPointModal'
+import { StoppingPointModal } from '../../modals/StoppingPointModal'
 import { useParams } from 'react-router-dom'
-import { api } from '../services/api'
+import { api } from '../../services/api'
 import { toast } from 'react-toastify'
 import { AiOutlineDelete } from 'react-icons/ai'
-import { Dialog } from '../components/Dialog'
-import { useDialog } from '../contexts/DialogContext'
+import { Dialog } from '../../components/Dialog'
+import { useDialog } from '../../contexts/DialogContext'
 import { FaMapMarkerAlt } from 'react-icons/fa'
+import { AuthContext } from '../../contexts/AuthContext'
 
 const API_TOKEN =
   'pk.eyJ1IjoibHVjYXNtZ3NpbHZhIiwiYSI6ImNreHF0aGVidDRlaGQybm80OWg2dzVoeXQifQ.exF-UiLvicFXXWKMkn4Kfg'
@@ -63,6 +64,8 @@ interface Route {
 export function StoppingPoints() {
   const modalDisclosure = useDisclosure()
   const dialogDisclosure = useDialog()
+
+  const { user } = useContext(AuthContext)
 
   const mapRef = useRef(null) as any
   const [region, setRegion] = useState<Region>({
@@ -110,6 +113,8 @@ export function StoppingPoints() {
     base: false,
     lg: true,
   })
+
+  const isAdministrator = user.type === 'administrator'
 
   function sortRouteStoppingPoints(r: Route) {
     const sortedStoppingPoints = r.stoppingPoints.sort(
@@ -194,18 +199,22 @@ export function StoppingPoints() {
           <Heading size="lg" fontWeight="normal">
             Pontos de Parada
           </Heading>
-          <Button
-            size="sm"
-            fontSize="sm"
-            colorScheme="pink"
-            filter={isInsertMarkerAction ? 'brightness(0.5)' : 'brightness(1)'}
-            leftIcon={<Icon as={RiAddLine} fontSize="20" />}
-            onClick={() => {
-              setIsInsertMarkerAction(!isInsertMarkerAction)
-            }}
-          >
-            Adicionar Ponto de Parada
-          </Button>
+          {isAdministrator && (
+            <Button
+              size="sm"
+              fontSize="sm"
+              colorScheme="pink"
+              filter={
+                isInsertMarkerAction ? 'brightness(0.5)' : 'brightness(1)'
+              }
+              leftIcon={<Icon as={RiAddLine} fontSize="20" />}
+              onClick={() => {
+                setIsInsertMarkerAction(!isInsertMarkerAction)
+              }}
+            >
+              Adicionar Ponto de Parada
+            </Button>
+          )}
         </Flex>
         {route?.description ? (
           <Heading size="md" fontWeight="normal" mt={['4', null, null, 0]}>
@@ -291,32 +300,38 @@ export function StoppingPoints() {
                           >
                             {isWideVersion && 'Seguir'}
                           </Button>
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="purple"
-                            leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                            onClick={() => {
-                              setSelectedStoppingPointId(stoppingPoint._id)
-                              modalDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Editar'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="red"
-                            leftIcon={
-                              <Icon as={AiOutlineDelete} fontSize="16" />
-                            }
-                            onClick={() => {
-                              setSelectedStoppingPointId(stoppingPoint._id)
-                              dialogDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Remover'}
-                          </Button>
+                          {isAdministrator && (
+                            <>
+                              <Button
+                                size="sm"
+                                fontSize="sm"
+                                colorScheme="purple"
+                                leftIcon={
+                                  <Icon as={RiPencilLine} fontSize="16" />
+                                }
+                                onClick={() => {
+                                  setSelectedStoppingPointId(stoppingPoint._id)
+                                  modalDisclosure.onOpen()
+                                }}
+                              >
+                                {isWideVersion && 'Editar'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                fontSize="sm"
+                                colorScheme="red"
+                                leftIcon={
+                                  <Icon as={AiOutlineDelete} fontSize="16" />
+                                }
+                                onClick={() => {
+                                  setSelectedStoppingPointId(stoppingPoint._id)
+                                  dialogDisclosure.onOpen()
+                                }}
+                              >
+                                {isWideVersion && 'Remover'}
+                              </Button>
+                            </>
+                          )}
                         </Flex>
                       </Td>
                     </Tr>

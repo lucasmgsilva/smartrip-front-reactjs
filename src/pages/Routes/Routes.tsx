@@ -16,17 +16,19 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { RiAddLine, RiPencilLine } from 'react-icons/ri'
 import { MdEditLocationAlt } from 'react-icons/md'
 import { AiOutlineDelete } from 'react-icons/ai'
 import { toast } from 'react-toastify'
-import { RoutesModal } from '../modals/RouteModal'
-import { api } from '../services/api'
-import { Dialog } from '../components/Dialog'
-import { useDialog } from '../contexts/DialogContext'
+import { RoutesModal } from '../../modals/RouteModal'
+import { api } from '../../services/api'
+import { Dialog } from '../../components/Dialog'
+import { useDialog } from '../../contexts/DialogContext'
 import { useNavigate } from 'react-router-dom'
+import { AuthContext } from '../../contexts/AuthContext'
 
+import { isAdmin } from '@firebase/util'
 interface Coordinate {
   lat: number
   lng: number
@@ -51,6 +53,7 @@ export function Routes() {
   const dialogDisclosure = useDialog()
 
   const navigate = useNavigate()
+  const { user } = useContext(AuthContext)
 
   const [isLoading, setIsLoading] = useState(true)
   const [routes, setRoutes] = useState<Route[]>([])
@@ -60,6 +63,8 @@ export function Routes() {
     base: false,
     lg: true,
   })
+
+  const isAdministrator = user.type === 'administrator'
 
   async function getRoutes() {
     setIsLoading(true)
@@ -119,18 +124,20 @@ export function Routes() {
         <Heading size="lg" fontWeight="normal">
           Rotas
         </Heading>
-        <Button
-          size="sm"
-          fontSize="sm"
-          colorScheme="pink"
-          leftIcon={<Icon as={RiAddLine} fontSize="20" />}
-          onClick={() => {
-            setSelectedRouteId(undefined)
-            modalDisclosure.onOpen()
-          }}
-        >
-          Cadastrar Rota
-        </Button>
+        {isAdministrator && (
+          <Button
+            size="sm"
+            fontSize="sm"
+            colorScheme="pink"
+            leftIcon={<Icon as={RiAddLine} fontSize="20" />}
+            onClick={() => {
+              setSelectedRouteId(undefined)
+              modalDisclosure.onOpen()
+            }}
+          >
+            Cadastrar Rota
+          </Button>
+        )}
       </Flex>
       <SimpleGrid>
         {isLoading ? (
@@ -147,6 +154,7 @@ export function Routes() {
                   <Th width="50%">Descrição</Th>
                   <Th>Qtd. Pontos de Parada</Th>
                   <Th>Qtd. Passageiros</Th>
+                  {isAdministrator && <Th>Controles</Th>}
                 </Tr>
               </Thead>
               <Tbody>
@@ -156,49 +164,53 @@ export function Routes() {
                       <Td>{route.description}</Td>
                       <Td>{route.stoppingPoints.length}</Td>
                       <Td>{route.passengers_id.length}</Td>
-                      <Td>
-                        <Flex gap="1">
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="purple"
-                            leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                            onClick={() => {
-                              setSelectedRouteId(route._id)
-                              modalDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Editar'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="teal"
-                            leftIcon={
-                              <Icon as={MdEditLocationAlt} fontSize="16" />
-                            }
-                            onClick={() =>
-                              navigate(`/rotas/pontos-de-parada/${route._id}`)
-                            }
-                          >
-                            {isWideVersion && 'Pontos de Parada'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="red"
-                            leftIcon={
-                              <Icon as={AiOutlineDelete} fontSize="16" />
-                            }
-                            onClick={() => {
-                              setSelectedRouteId(route._id)
-                              dialogDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Remover'}
-                          </Button>
-                        </Flex>
-                      </Td>
+                      {isAdministrator && (
+                        <Td>
+                          <Flex gap="1">
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="purple"
+                              leftIcon={
+                                <Icon as={RiPencilLine} fontSize="16" />
+                              }
+                              onClick={() => {
+                                setSelectedRouteId(route._id)
+                                modalDisclosure.onOpen()
+                              }}
+                            >
+                              {isWideVersion && 'Editar'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="teal"
+                              leftIcon={
+                                <Icon as={MdEditLocationAlt} fontSize="16" />
+                              }
+                              onClick={() =>
+                                navigate(`/rotas/pontos-de-parada/${route._id}`)
+                              }
+                            >
+                              {isWideVersion && 'Pontos de Parada'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="red"
+                              leftIcon={
+                                <Icon as={AiOutlineDelete} fontSize="16" />
+                              }
+                              onClick={() => {
+                                setSelectedRouteId(route._id)
+                                dialogDisclosure.onOpen()
+                              }}
+                            >
+                              {isWideVersion && 'Remover'}
+                            </Button>
+                          </Flex>
+                        </Td>
+                      )}
                     </Tr>
                   )
                 })}

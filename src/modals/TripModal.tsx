@@ -44,7 +44,7 @@ interface VehicleModalProps {
   selectedVehicleId?: String | undefined
 }
 
-export function VehicleModal({
+export function TripModal({
   disclosure,
   onAddVehicle,
   onUpdateVehicle,

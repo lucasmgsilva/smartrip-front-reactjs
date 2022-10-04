@@ -16,7 +16,7 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { RiAddLine, RiPencilLine } from 'react-icons/ri'
 import { AiOutlineDelete } from 'react-icons/ai'
 import { toast } from 'react-toastify'
@@ -24,6 +24,7 @@ import { api } from '../services/api'
 import { Dialog } from '../components/Dialog'
 import { useDialog } from '../contexts/DialogContext'
 import { UserModal } from '../modals/UserModal'
+import { AuthContext } from '../contexts/AuthContext'
 
 export type UserType = 'student' | 'driver' | 'administrator'
 
@@ -47,6 +48,8 @@ export function Users() {
   const modalDisclosure = useDisclosure()
   const dialogDisclosure = useDialog()
 
+  const { user } = useContext(AuthContext)
+
   const [isLoading, setIsLoading] = useState(true)
   const [users, setUsers] = useState<User[]>([])
   const [selectedUserId, setSelectedUserId] = useState<String | undefined>()
@@ -55,6 +58,8 @@ export function Users() {
     base: false,
     lg: true,
   })
+
+  const isAdministrator = user.type === 'administrator'
 
   async function getUsers() {
     setIsLoading(true)
@@ -114,18 +119,20 @@ export function Users() {
         <Heading size="lg" fontWeight="normal">
           Usuários
         </Heading>
-        <Button
-          size="sm"
-          fontSize="sm"
-          colorScheme="pink"
-          leftIcon={<Icon as={RiAddLine} fontSize="20" />}
-          onClick={() => {
-            setSelectedUserId(undefined)
-            modalDisclosure.onOpen()
-          }}
-        >
-          Cadastrar Usuário
-        </Button>
+        {isAdministrator && (
+          <Button
+            size="sm"
+            fontSize="sm"
+            colorScheme="pink"
+            leftIcon={<Icon as={RiAddLine} fontSize="20" />}
+            onClick={() => {
+              setSelectedUserId(undefined)
+              modalDisclosure.onOpen()
+            }}
+          >
+            Cadastrar Usuário
+          </Button>
+        )}
       </Flex>
       <SimpleGrid>
         {isLoading ? (
@@ -144,7 +151,7 @@ export function Users() {
                   <Th>Telefone</Th>
                   <Th>Instituição</Th>
                   <Th>Tipo</Th>
-                  <Th>Controles</Th>
+                  {isAdministrator && <Th>Controles</Th>}
                 </Tr>
               </Thead>
               <Tbody>
@@ -156,36 +163,40 @@ export function Users() {
                       <Td>{user.cellPhone}</Td>
                       <Td>{user.educationalInstitution}</Td>
                       <Td>{FriendlyUserType[user.type]}</Td>
-                      <Td>
-                        <Flex gap="1">
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="purple"
-                            leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                            onClick={() => {
-                              setSelectedUserId(user._id)
-                              modalDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Editar'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="red"
-                            leftIcon={
-                              <Icon as={AiOutlineDelete} fontSize="16" />
-                            }
-                            onClick={() => {
-                              setSelectedUserId(user._id)
-                              dialogDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Remover'}
-                          </Button>
-                        </Flex>
-                      </Td>
+                      {isAdministrator && (
+                        <Td>
+                          <Flex gap="1">
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="purple"
+                              leftIcon={
+                                <Icon as={RiPencilLine} fontSize="16" />
+                              }
+                              onClick={() => {
+                                setSelectedUserId(user._id)
+                                modalDisclosure.onOpen()
+                              }}
+                            >
+                              {isWideVersion && 'Editar'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="red"
+                              leftIcon={
+                                <Icon as={AiOutlineDelete} fontSize="16" />
+                              }
+                              onClick={() => {
+                                setSelectedUserId(user._id)
+                                dialogDisclosure.onOpen()
+                              }}
+                            >
+                              {isWideVersion && 'Remover'}
+                            </Button>
+                          </Flex>
+                        </Td>
+                      )}
                     </Tr>
                   )
                 })}

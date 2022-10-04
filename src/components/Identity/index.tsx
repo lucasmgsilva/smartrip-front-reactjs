@@ -1,7 +1,6 @@
-import { Icon } from '@chakra-ui/icon'
 import { Box, Flex, Heading, SimpleGrid, Text } from '@chakra-ui/layout'
 import { UserType } from '../../pages/Users'
-import { BiUser } from 'react-icons/bi'
+import { Avatar } from '@chakra-ui/avatar'
 
 interface IdentityProps {
   name: string
@@ -37,8 +36,15 @@ export function Identity({
         gap="12"
       >
         <Flex>
-          <Box borderRadius="100%" bg="whiteAlpha.200" p="6">
-            <Icon as={BiUser} width={20} height={20} lineHeight="0" />
+          <Box borderRadius="100%" /* bg="whiteAlpha.200" p="6" */>
+            {/* <Icon as={BiUser} width={20} height={20} lineHeight="0" /> */}
+            <Avatar
+              size="2xl"
+              width={32}
+              height={32}
+              name={name}
+              title={name}
+            />
           </Box>
         </Flex>
         <SimpleGrid
