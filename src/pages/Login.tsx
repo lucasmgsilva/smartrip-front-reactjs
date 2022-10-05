@@ -18,11 +18,12 @@ import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { Logo } from '../components/Header/Logo'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { GrFormView, GrFormViewHide } from 'react-icons/gr'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { api } from '../services/api'
+import { AuthContext } from '../contexts/AuthContext'
 
 const loginFormSchema = zod.object({
   email: zod
@@ -40,6 +41,7 @@ const loginFormSchema = zod.object({
 export type LoginFormData = zod.infer<typeof loginFormSchema>
 
 export default function Login() {
+  const { handleUserAuth } = useContext(AuthContext)
   const [show, setShow] = useState(false)
 
   const navigate = useNavigate()
@@ -53,23 +55,24 @@ export default function Login() {
 
   async function handleLogin(data: LoginFormData) {
     try {
-      await api.post('/auth', {
+      const response = await api.post('/auth', {
         ...data,
       })
 
-      toast.success('Usuário logado com sucesso!')
+      handleUserAuth(response.data)
+
+      toast.success('Login realizado com sucesso!')
 
       setTimeout(() => {
         navigate('/')
       }, 1000)
     } catch (error: any) {
       if (error?.response?.status === 400) {
-        if (
-          error?.response?.data.error.message === 'E-mail ou senha inválidos.'
-        ) {
+        const errorMessage = error?.response?.data.error.message
+        if (errorMessage === 'E-mail ou senha inválidos.') {
           toast.error('E-mail ou senha inválidos.')
-        } else {
-          toast.error('Usuário não encontrado.')
+        } else if (errorMessage === 'Usuário aguardando aprovação.') {
+          toast.error('Usuário aguardando aprovação.')
         }
       } else {
         toast.error(
@@ -147,7 +150,7 @@ export default function Login() {
               <FormErrorMessage>{errors?.password?.message}</FormErrorMessage>
             )}
           </FormControl>
-          <Link color="blue.500">Esqueci minha senha</Link>
+          {/* <Link color="blue.500">Esqueci minha senha</Link> */}
         </Stack>
         <Button
           type="submit"

@@ -4,6 +4,7 @@ import {
   Flex,
   Heading,
   Icon,
+  SimpleGrid,
   Skeleton,
   Table,
   TableContainer,
@@ -15,18 +16,19 @@ import {
   useBreakpointValue,
   useDisclosure,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { RiAddLine, RiPencilLine } from 'react-icons/ri'
 import { AiOutlineDelete } from 'react-icons/ai'
 import { toast } from 'react-toastify'
-import { VehiclesModal } from '../modals/VehicleModal'
+import { VehicleModal } from '../modals/VehicleModal'
 import { api } from '../services/api'
 import { Dialog } from '../components/Dialog'
 import { useDialog } from '../contexts/DialogContext'
+import { AuthContext } from '../contexts/AuthContext'
 
 export type VehicleType = 'bus' | 'minibus' | 'van'
 
-const FriendlyVehicleType = {
+export const FriendlyVehicleType = {
   bus: 'Ônibus',
   minibus: 'Micro-ônibus',
   van: 'Van',
@@ -43,6 +45,8 @@ export function Vehicles() {
   const modalDisclosure = useDisclosure()
   const dialogDisclosure = useDialog()
 
+  const { user } = useContext(AuthContext)
+
   const [isLoading, setIsLoading] = useState(true)
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [selectedVehicleId, setSelectedVehicleId] = useState<
@@ -53,6 +57,8 @@ export function Vehicles() {
     base: false,
     lg: true,
   })
+
+  const isAdministrator = user.type === 'administrator'
 
   async function getVehicles() {
     setIsLoading(true)
@@ -114,20 +120,22 @@ export function Vehicles() {
         <Heading size="lg" fontWeight="normal">
           Veículos
         </Heading>
-        <Button
-          size="sm"
-          fontSize="sm"
-          colorScheme="pink"
-          leftIcon={<Icon as={RiAddLine} fontSize="20" />}
-          onClick={() => {
-            setSelectedVehicleId(undefined)
-            modalDisclosure.onOpen()
-          }}
-        >
-          Cadastrar Veículo
-        </Button>
+        {isAdministrator && (
+          <Button
+            size="sm"
+            fontSize="sm"
+            colorScheme="pink"
+            leftIcon={<Icon as={RiAddLine} fontSize="20" />}
+            onClick={() => {
+              setSelectedVehicleId(undefined)
+              modalDisclosure.onOpen()
+            }}
+          >
+            Cadastrar Veículo
+          </Button>
+        )}
       </Flex>
-      <Box>
+      <SimpleGrid>
         {isLoading ? (
           Array(15)
             .fill(0)
@@ -142,7 +150,7 @@ export function Vehicles() {
                   <Th width="50%">Descrição</Th>
                   <Th>Placa</Th>
                   <Th>Tipo</Th>
-                  <Th>Controles</Th>
+                  {isAdministrator && <Th>Controles</Th>}
                 </Tr>
               </Thead>
               <Tbody>
@@ -152,36 +160,40 @@ export function Vehicles() {
                       <Td>{vehicle.description}</Td>
                       <Td>{vehicle.licensePlate}</Td>
                       <Td>{FriendlyVehicleType[vehicle.type]}</Td>
-                      <Td>
-                        <Flex gap="1">
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="purple"
-                            leftIcon={<Icon as={RiPencilLine} fontSize="16" />}
-                            onClick={() => {
-                              setSelectedVehicleId(vehicle._id)
-                              modalDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Editar'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="red"
-                            leftIcon={
-                              <Icon as={AiOutlineDelete} fontSize="16" />
-                            }
-                            onClick={() => {
-                              setSelectedVehicleId(vehicle._id)
-                              dialogDisclosure.onOpen()
-                            }}
-                          >
-                            {isWideVersion && 'Remover'}
-                          </Button>
-                        </Flex>
-                      </Td>
+                      {isAdministrator && (
+                        <Td>
+                          <Flex gap="1">
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="purple"
+                              leftIcon={
+                                <Icon as={RiPencilLine} fontSize="16" />
+                              }
+                              onClick={() => {
+                                setSelectedVehicleId(vehicle._id)
+                                modalDisclosure.onOpen()
+                              }}
+                            >
+                              {isWideVersion && 'Editar'}
+                            </Button>
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="red"
+                              leftIcon={
+                                <Icon as={AiOutlineDelete} fontSize="16" />
+                              }
+                              onClick={() => {
+                                setSelectedVehicleId(vehicle._id)
+                                dialogDisclosure.onOpen()
+                              }}
+                            >
+                              {isWideVersion && 'Remover'}
+                            </Button>
+                          </Flex>
+                        </Td>
+                      )}
                     </Tr>
                   )
                 })}
@@ -189,8 +201,8 @@ export function Vehicles() {
             </Table>
           </TableContainer>
         )}
-      </Box>
-      <VehiclesModal
+      </SimpleGrid>
+      <VehicleModal
         disclosure={modalDisclosure}
         onAddVehicle={addVehicle}
         onUpdateVehicle={updateVehicle}

@@ -1,13 +1,18 @@
 import axios from 'axios'
 
+const API_TOKEN =
+  'pk.eyJ1IjoibHVjYXNtZ3NpbHZhIiwiYSI6ImNreHF0aGVidDRlaGQybm80OWg2dzVoeXQifQ.exF-UiLvicFXXWKMkn4Kfg'
+
 export const directionsApi = axios.create({
-  baseURL: 'https://api.mapbox.com/directions/v5/mapbox/driving',
+  baseURL: 'https://api.mapbox.com/directions/v5/mapbox/driving-traffic',
 
   params: {
     alternatives: false,
     geometries: 'geojson',
-    overview: 'simplified',
+    // annotations: 'distance;duration;speed;congestion',
+    // geometries: 'full',
+    overview: 'full',
     steps: false,
-    access_token: process.env.REACT_APP_MAPBOX_TOKEN,
+    access_token: API_TOKEN,
   },
 })

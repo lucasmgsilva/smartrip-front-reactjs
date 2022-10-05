@@ -12,98 +12,132 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Radio,
-  RadioGroup,
   Skeleton,
   Stack,
   UseDisclosureReturn,
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { Vehicle, VehicleType } from '../pages/Vehicles'
 import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '../services/api'
 
-const vehicleFormSchema = zod.object({
+import Select from 'react-select'
+import { User } from '../pages/Users'
+import { Route } from '../pages/Routes/Routes'
+
+const routeFormSchema = zod.object({
   description: zod
     .string()
     .min(3, 'Descrição deve ter pelo menos 3 caracteres')
-    .max(25, 'Descrição deve ter no máximo 25 caracteres'),
-  licensePlate: zod.string().length(8, 'Placa deve ter 8 caracteres'),
-  // type: zod.string(),
+    .max(75, 'Descrição deve ter no máximo 75 caracteres'),
 })
 
-export type VehicleFormData = zod.infer<typeof vehicleFormSchema>
+export type RouteFormData = zod.infer<typeof routeFormSchema>
 
-interface VehicleModalProps {
+interface RouteModalProps {
   disclosure: UseDisclosureReturn
-  onAddVehicle: (vehicle: Vehicle) => void
-  onUpdateVehicle: (vehicle: Vehicle) => void
-  selectedVehicleId?: String | undefined
+  onAddRoute: (route: Route) => void
+  onUpdateRoute: (route: Route) => void
+  selectedRouteId?: String | undefined
 }
 
-export function VehicleModal({
+export function RoutesModal({
   disclosure,
-  onAddVehicle,
-  onUpdateVehicle,
-  selectedVehicleId,
-}: VehicleModalProps) {
+  onAddRoute,
+  onUpdateRoute,
+  selectedRouteId,
+}: RouteModalProps) {
   const { isOpen, onClose } = disclosure
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [type, setType] = useState<VehicleType>('bus')
+  const [route, setRoute] = useState<Route>()
+  const [users, setUsers] = useState<User[]>([])
 
-  const VehicleForm = useForm<VehicleFormData>({
-    resolver: zodResolver(vehicleFormSchema),
+  const passengersOptions = users.map((user) => ({
+    value: user._id,
+    label: `${user.name} (${user.email})`,
+  }))
+
+  const [selectedPassengers, setSelectedPassengers] = useState<any>()
+
+  const RouteForm = useForm<RouteFormData>({
+    resolver: zodResolver(routeFormSchema),
   })
 
-  const { register, handleSubmit, formState, setValue, reset } = VehicleForm
+  const { register, handleSubmit, formState, setValue, reset } = RouteForm
   const { errors } = formState
 
   useEffect(() => {
     if (!isOpen) {
       reset()
-      setType('bus')
+      setRoute(undefined)
+      setSelectedPassengers([])
     } else {
-      if (selectedVehicleId) {
-        getVehicle()
+      getUsers()
+      if (selectedRouteId) {
+        setIsLoading(true)
+        getRoute()
+        setIsLoading(false)
       } else {
         setIsLoading(false)
       }
     }
   }, [isOpen])
 
-  async function handleSaveClick(data: VehicleFormData) {
+  useEffect(() => {
+    if (route && route.passengers_id.length > 0 && users.length > 0) {
+      setSelectedPassengers(
+        route.passengers_id.map((passenger_id) => {
+          const passenger = users.find((user) => user._id === passenger_id)
+
+          if (passenger) {
+            return {
+              value: passenger?._id,
+              label: `${passenger.name} (${passenger.email})`,
+            }
+          }
+        }),
+      )
+    }
+  }, [route, users])
+
+  async function handleSaveClick(data: RouteFormData) {
     setIsSubmitting(true)
 
     try {
-      if (!selectedVehicleId) {
-        const response = await api.post('/vehicles', {
-          ...data,
-          type,
-        })
-        const vehicle = response.data
+      const passengers_id = selectedPassengers.map(
+        (selectedPassenger) => selectedPassenger.value,
+      )
 
-        onAddVehicle(vehicle)
+      if (!selectedRouteId) {
+        const response = await api.post('/routes', {
+          ...data,
+          stoppingPoints: [],
+          passengers_id,
+        })
+        const rRoute = response.data
+
+        onAddRoute(rRoute)
       } else {
-        const response = await api.put(`/vehicles/${selectedVehicleId}`, {
+        const response = await api.put(`/routes/${selectedRouteId}`, {
+          ...route,
           ...data,
-          type,
+          passengers_id,
         })
-        const vehicle = response.data
+        const rRoute = response.data
 
-        onUpdateVehicle(vehicle)
+        onUpdateRoute(rRoute)
       }
 
-      toast.success('Veículo salvo com sucesso!')
+      toast.success('Rota salvo com sucesso!')
       onClose()
     } catch (error: any) {
       if (error?.response?.status === 400) {
-        toast.error('Falha ao salvar veículo. Dados inválidos!')
+        toast.error('Falha ao salvar rota. Dados inválidos!')
       } else {
         toast.error(
           'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
@@ -114,18 +148,37 @@ export function VehicleModal({
     }
   }
 
-  async function getVehicle() {
+  async function getUsers() {
     setIsLoading(true)
     try {
-      const response = await api.get(`/vehicles/${selectedVehicleId}`)
-      const vehicle = response.data
+      const response = await api.get(`/users`)
+      const users = response.data
 
-      setValue('description', vehicle.description)
-      setValue('licensePlate', vehicle.licensePlate)
-      setType(vehicle.type)
+      setUsers(users)
     } catch (error: any) {
       if (error?.response?.status === 400) {
-        toast.error('Falha ao obter veículo!')
+        toast.error('Falha ao obter usuários!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function getRoute() {
+    setIsLoading(true)
+    try {
+      const response = await api.get(`/routes/${selectedRouteId}`)
+      const route: Route = response.data
+
+      setValue('description', route.description)
+      setRoute(route)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Falha ao obter rota!')
       } else {
         toast.error(
           'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
@@ -141,12 +194,12 @@ export function VehicleModal({
       <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent bgColor="gray.800">
-          <ModalHeader fontSize="2xl">Veículo</ModalHeader>
+          <ModalHeader fontSize="2xl">Rota</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Flex
               as="form"
-              id="vehicleForm"
+              id="routeForm"
               width="100%"
               onSubmit={handleSubmit(handleSaveClick)}
             >
@@ -174,56 +227,22 @@ export function VehicleModal({
                     )}
                   </Skeleton>
                 </FormControl>
-                <FormControl isInvalid={!!errors?.licensePlate}>
+                <FormControl /* isInvalid={!!errors?.users} */>
                   <Skeleton isLoaded={!isLoading}>
-                    <FormLabel>Placa</FormLabel>
+                    <FormLabel>Passageiros</FormLabel>
                   </Skeleton>
                   <Skeleton isLoaded={!isLoading}>
-                    <Input
-                      focusBorderColor="pink.500"
-                      bgColor="gray.900"
-                      _hover={{
-                        bgColor: 'gray.900',
-                      }}
-                      variant="filled"
-                      size="lg"
-                      {...register('licensePlate')}
+                    <Select
+                      isMulti
+                      isSearchable
+                      closeMenuOnSelect={false}
+                      value={selectedPassengers}
+                      onChange={setSelectedPassengers}
+                      options={passengersOptions}
                     />
-                    {!!errors?.licensePlate?.message && (
+                    {/* {!!errors?.description?.message && (
                       <FormErrorMessage>
-                        {errors?.licensePlate?.message}
-                      </FormErrorMessage>
-                    )}
-                  </Skeleton>
-                </FormControl>
-                <FormControl /* isInvalid={!!errors?.type} */>
-                  <Skeleton isLoaded={!isLoading}>
-                    <FormLabel>Tipo</FormLabel>
-                  </Skeleton>
-                  <Skeleton isLoaded={!isLoading}>
-                    <RadioGroup
-                      value={type}
-                      onChange={(value: VehicleType) => setType(value)}
-                      // {...register('type')}
-                    >
-                      <Stack
-                        direction={['column', null, null, 'row']}
-                        spacing={[2, null, null, 8]}
-                      >
-                        <Radio value="bus" colorScheme="pink" size="lg">
-                          Ônibus
-                        </Radio>
-                        <Radio value="minibus" colorScheme="pink" size="lg">
-                          Micro-ônibus
-                        </Radio>
-                        <Radio value="van" colorScheme="pink" size="lg">
-                          Van
-                        </Radio>
-                      </Stack>
-                    </RadioGroup>
-                    {/* {!!errors?.type?.message && (
-                      <FormErrorMessage>
-                        {errors?.type?.message}
+                        {errors?.description?.message}
                       </FormErrorMessage>
                     )} */}
                   </Skeleton>
@@ -235,7 +254,7 @@ export function VehicleModal({
           <ModalFooter>
             <Button
               type="submit"
-              form="vehicleForm"
+              form="routeForm"
               colorScheme="blue"
               mr={3}
               isLoading={isSubmitting}

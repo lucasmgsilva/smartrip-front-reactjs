@@ -29,6 +29,7 @@ import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '../services/api'
+import { TelMask } from '../utils/masks'
 
 const userFormSchema = zod.object({
   name: zod
@@ -289,6 +290,8 @@ export function UserModal({
                       variant="filled"
                       size="lg"
                       {...register('cellPhone')}
+                      maxLength={15}
+                      onChange={TelMask}
                     />
                     {!!errors?.cellPhone?.message && (
                       <FormErrorMessage>
@@ -329,7 +332,10 @@ export function UserModal({
                       onChange={(value: UserType) => setType(value)}
                       // {...register('type')}
                     >
-                      <Stack direction="row" spacing={8}>
+                      <Stack
+                        direction={['column', null, null, 'row']}
+                        spacing={[2, null, null, 8]}
+                      >
                         <Radio value="student" colorScheme="pink" size="lg">
                           Estudante
                         </Radio>

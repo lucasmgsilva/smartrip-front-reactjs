@@ -1,72 +1,19 @@
+import { useContext } from 'react'
+import { Identity } from '../components/Identity'
+import { AuthContext } from '../contexts/AuthContext'
+
 export function Home() {
+  const { user } = useContext(AuthContext)
+
   return (
     <div>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quaerat?
-        Molestias sequi, aperiam maxime officiis provident atque commodi
-        similique a culpa minus, reprehenderit ipsa, eligendi fugit repellendus
-        ut vel. Sint! Lorem ipsum dolor sit amet consectetur adipisicing elit.
-        Autem, quaerat? Molestias sequi, aperiam maxime officiis provident atque
-        commodi similique a culpa minus, reprehenderit ipsa, eligendi fugit
-        repellendus ut vel. Sint! Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. Autem, quaerat? Molestias sequi, aperiam maxime
-        officiis provident atque commodi similique a culpa minus, reprehenderit
-        ipsa, eligendi fugit repellendus ut vel. Sint! Lorem ipsum dolor sit
-        amet consectetur adipisicing elit. Autem, quaerat? Molestias sequi,
-        aperiam maxime officiis provident atque commodi similique a culpa minus,
-        reprehenderit ipsa, eligendi fugit repellendus ut vel. Sint! Lorem ipsum
-        dolor sit amet consectetur adipisicing elit. Autem, quaerat? Molestias
-        sequi, aperiam maxime officiis provident atque commodi similique a culpa
-        minus, reprehenderit ipsa, eligendi fugit repellendus ut vel. Sint!
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quaerat?
-        Molestias sequi, aperiam maxime officiis provident atque commodi
-        similique a culpa minus, reprehenderit ipsa, eligendi fugit repellendus
-        ut vel. Sint!
-      </p>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quaerat?
-        Molestias sequi, aperiam maxime officiis provident atque commodi
-        similique a culpa minus, reprehenderit ipsa, eligendi fugit repellendus
-        ut vel. Sint! Lorem ipsum dolor sit amet consectetur adipisicing elit.
-        Autem, quaerat? Molestias sequi, aperiam maxime officiis provident atque
-        commodi similique a culpa minus, reprehenderit ipsa, eligendi fugit
-        repellendus ut vel. Sint! Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. Autem, quaerat? Molestias sequi, aperiam maxime
-        officiis provident atque commodi similique a culpa minus, reprehenderit
-        ipsa, eligendi fugit repellendus ut vel. Sint! Lorem ipsum dolor sit
-        amet consectetur adipisicing elit. Autem, quaerat? Molestias sequi,
-        aperiam maxime officiis provident atque commodi similique a culpa minus,
-        reprehenderit ipsa, eligendi fugit repellendus ut vel. Sint! Lorem ipsum
-        dolor sit amet consectetur adipisicing elit. Autem, quaerat? Molestias
-        sequi, aperiam maxime officiis provident atque commodi similique a culpa
-        minus, reprehenderit ipsa, eligendi fugit repellendus ut vel. Sint!
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quaerat?
-        Molestias sequi, aperiam maxime officiis provident atque commodi
-        similique a culpa minus, reprehenderit ipsa, eligendi fugit repellendus
-        ut vel. Sint!
-      </p>
-      <p>
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quaerat?
-        Molestias sequi, aperiam maxime officiis provident atque commodi
-        similique a culpa minus, reprehenderit ipsa, eligendi fugit repellendus
-        ut vel. Sint! Lorem ipsum dolor sit amet consectetur adipisicing elit.
-        Autem, quaerat? Molestias sequi, aperiam maxime officiis provident atque
-        commodi similique a culpa minus, reprehenderit ipsa, eligendi fugit
-        repellendus ut vel. Sint! Lorem ipsum dolor sit amet consectetur
-        adipisicing elit. Autem, quaerat? Molestias sequi, aperiam maxime
-        officiis provident atque commodi similique a culpa minus, reprehenderit
-        ipsa, eligendi fugit repellendus ut vel. Sint! Lorem ipsum dolor sit
-        amet consectetur adipisicing elit. Autem, quaerat? Molestias sequi,
-        aperiam maxime officiis provident atque commodi similique a culpa minus,
-        reprehenderit ipsa, eligendi fugit repellendus ut vel. Sint! Lorem ipsum
-        dolor sit amet consectetur adipisicing elit. Autem, quaerat? Molestias
-        sequi, aperiam maxime officiis provident atque commodi similique a culpa
-        minus, reprehenderit ipsa, eligendi fugit repellendus ut vel. Sint!
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quaerat?
-        Molestias sequi, aperiam maxime officiis provident atque commodi
-        similique a culpa minus, reprehenderit ipsa, eligendi fugit repellendus
-        ut vel. Sint!
-      </p>
+      <Identity
+        name={user.name}
+        email={user.email}
+        cellPhone={user.cellPhone}
+        educationalInstitution={user.educationalInstitution}
+        type={user.type}
+      />
     </div>
   )
 }
