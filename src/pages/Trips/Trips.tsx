@@ -37,6 +37,7 @@ export interface Trip {
   startTime: Date
   endTime: Date
   vehicle_id: string
+  isWayBack: boolean
 
   route: Route
   vehicle: Vehicle
@@ -77,7 +78,6 @@ export function Trips() {
         const vehicleResponse = await api.get(`/vehicles/${trip.vehicle_id}`)
 
         trip.vehicle = vehicleResponse.data
-
         return trip
       })
 
@@ -95,11 +95,25 @@ export function Trips() {
     }
   }
 
-  function addTrip(trip: Trip) {
+  async function addTrip(trip: Trip) {
+    const routeResponse = await api.get(`/routes/${trip.route_id}`)
+
+    const vehicleResponse = await api.get(`/vehicles/${trip.vehicle_id}`)
+
+    trip.route = routeResponse.data
+    trip.vehicle = vehicleResponse.data
+
     setTrips([...trips, trip])
   }
 
-  function updateTrip(trip: Trip) {
+  async function updateTrip(trip: Trip) {
+    const routeResponse = await api.get(`/routes/${trip.route_id}`)
+
+    const vehicleResponse = await api.get(`/vehicles/${trip.vehicle_id}`)
+
+    trip.route = routeResponse.data
+    trip.vehicle = vehicleResponse.data
+
     setTrips((state) => state.map((v) => (v._id === trip._id ? trip : v)))
   }
 
@@ -219,7 +233,8 @@ export function Trips() {
                           >
                             {isWideVersion && 'Acompanhar'}
                           </Button>
-                          {isAdministratorOrDriver && (
+
+                          {isAdministrator && (
                             <>
                               <Button
                                 size="sm"
@@ -232,9 +247,11 @@ export function Trips() {
                                   setSelectedTripId(trip._id)
                                   modalDisclosure.onOpen()
                                 }}
+                                disabled={!!trip.endTime}
                               >
                                 {isWideVersion && 'Editar'}
                               </Button>
+
                               <Button
                                 size="sm"
                                 fontSize="sm"
@@ -270,7 +287,7 @@ export function Trips() {
       <Dialog
         title="Remover Viagem"
         message={`Tem certeza que deseja remover a viagem "${
-          trips.find((v) => v._id === selectedTripId)?.description
+          trips.find((v) => v._id === selectedTripId)?.route.description
         }"? Você não pode desfazer essa ação depois.`}
         onDeleteAction={deleteTrip}
       />

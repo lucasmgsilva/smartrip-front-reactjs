@@ -1,10 +1,9 @@
 import {
   Button,
+  Checkbox,
   Flex,
   FormControl,
-  FormErrorMessage,
   FormLabel,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -12,98 +11,101 @@ import {
   ModalFooter,
   ModalHeader,
   ModalOverlay,
-  Radio,
-  RadioGroup,
   Skeleton,
   Stack,
   UseDisclosureReturn,
 } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { Vehicle, VehicleType } from '../pages/Vehicles'
-import { useForm } from 'react-hook-form'
-import * as zod from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '../services/api'
+import { Trip } from '../pages/Trips/Trips'
 
-const vehicleFormSchema = zod.object({
-  description: zod
-    .string()
-    .min(3, 'Descrição deve ter pelo menos 3 caracteres')
-    .max(25, 'Descrição deve ter no máximo 25 caracteres'),
-  licensePlate: zod.string().length(8, 'Placa deve ter 8 caracteres'),
-  // type: zod.string(),
-})
+import Select from 'react-select'
+import { Route } from '../pages/Routes/Routes'
+import { Vehicle } from '../pages/Vehicles'
 
-export type VehicleFormData = zod.infer<typeof vehicleFormSchema>
-
-interface VehicleModalProps {
+interface TripModalProps {
   disclosure: UseDisclosureReturn
-  onAddVehicle: (vehicle: Vehicle) => void
-  onUpdateVehicle: (vehicle: Vehicle) => void
-  selectedVehicleId?: String | undefined
+  onAddTrip: (trip: Trip) => void
+  onUpdateTrip: (trip: Trip) => void
+  selectedTripId?: String | undefined
 }
 
 export function TripModal({
   disclosure,
-  onAddVehicle,
-  onUpdateVehicle,
-  selectedVehicleId,
-}: VehicleModalProps) {
+  onAddTrip,
+  onUpdateTrip,
+  selectedTripId,
+}: TripModalProps) {
   const { isOpen, onClose } = disclosure
 
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const [type, setType] = useState<VehicleType>('bus')
+  const [trip, setTrip] = useState<Trip>()
+  const [routes, setRoutes] = useState<Route[]>([])
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
 
-  const VehicleForm = useForm<VehicleFormData>({
-    resolver: zodResolver(vehicleFormSchema),
-  })
+  const routesOptions = routes.map((route) => ({
+    value: route._id,
+    label: route.description,
+  }))
 
-  const { register, handleSubmit, formState, setValue, reset } = VehicleForm
-  const { errors } = formState
+  const vehiclesOptions = vehicles.map((vehicle) => ({
+    value: vehicle._id,
+    label: vehicle.licensePlate,
+  }))
+
+  const [selectedRoute, setSelectedRoute] = useState<any>()
+  const [selectedVehicle, setSelectedVehicle] = useState<any>()
+  const [isWayBack, setIsWayBack] = useState<boolean>()
 
   useEffect(() => {
     if (!isOpen) {
-      reset()
-      setType('bus')
+      setIsWayBack(false)
     } else {
-      if (selectedVehicleId) {
-        getVehicle()
+      getRoutes()
+      getVehicles()
+
+      if (selectedTripId) {
+        getTrip()
       } else {
         setIsLoading(false)
       }
     }
   }, [isOpen])
 
-  async function handleSaveClick(data: VehicleFormData) {
+  async function handleSaveClick() {
     setIsSubmitting(true)
 
     try {
-      if (!selectedVehicleId) {
-        const response = await api.post('/vehicles', {
-          ...data,
-          type,
+      if (!selectedTripId) {
+        const response = await api.post('/trips', {
+          ...trip,
+          route_id: selectedRoute.value,
+          vehicle_id: selectedVehicle.value,
+          isWayBack,
         })
-        const vehicle = response.data
+        const t = response.data
 
-        onAddVehicle(vehicle)
+        onAddTrip(t)
       } else {
-        const response = await api.put(`/vehicles/${selectedVehicleId}`, {
-          ...data,
-          type,
+        const response = await api.put(`/trips/${selectedTripId}`, {
+          ...trip,
+          route_id: selectedRoute.value,
+          vehicle_id: selectedVehicle.value,
+          isWayBack,
         })
-        const vehicle = response.data
+        const t = response.data
 
-        onUpdateVehicle(vehicle)
+        onUpdateTrip(t)
       }
 
-      toast.success('Veículo salvo com sucesso!')
+      toast.success('Viagem salvo com sucesso!')
       onClose()
     } catch (error: any) {
       if (error?.response?.status === 400) {
-        toast.error('Falha ao salvar veículo. Dados inválidos!')
+        toast.error('Falha ao salvar viagem. Dados inválidos!')
       } else {
         toast.error(
           'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
@@ -114,18 +116,15 @@ export function TripModal({
     }
   }
 
-  async function getVehicle() {
+  async function getRoutes() {
     setIsLoading(true)
     try {
-      const response = await api.get(`/vehicles/${selectedVehicleId}`)
-      const vehicle = response.data
+      const response = await api.get(`/routes`)
 
-      setValue('description', vehicle.description)
-      setValue('licensePlate', vehicle.licensePlate)
-      setType(vehicle.type)
+      setRoutes(response.data)
     } catch (error: any) {
       if (error?.response?.status === 400) {
-        toast.error('Falha ao obter veículo!')
+        toast.error('Falha ao obter rotas!')
       } else {
         toast.error(
           'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
@@ -136,96 +135,122 @@ export function TripModal({
     }
   }
 
+  async function getVehicles() {
+    setIsLoading(true)
+    try {
+      const response = await api.get(`/vehicles`)
+
+      setVehicles(response.data)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Falha ao obter veículos!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function getTrip() {
+    setIsLoading(true)
+    try {
+      const response = await api.get(`/trips/${selectedTripId}`)
+      setTrip(response.data)
+      setIsWayBack(response.data.isWayBack)
+    } catch (error: any) {
+      if (error?.response?.status === 400) {
+        toast.error('Falha ao obter viagem!')
+      } else {
+        toast.error(
+          'Falha ao conectar-se ao servidor. Tente novamente mais tarde!',
+        )
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (selectedTripId && trip) {
+      if (routes && routes.length > 0) {
+        const r = routes.find((route) => route._id === trip.route_id)
+        if (r) {
+          setSelectedRoute({
+            value: r?._id,
+            label: r?.description,
+          })
+        }
+      }
+
+      if (vehicles && vehicles.length > 0) {
+        const v = vehicles.find((vehicle) => vehicle._id === trip.vehicle_id)
+
+        if (v) {
+          setSelectedVehicle({
+            value: v?._id,
+            label: v?.licensePlate,
+          })
+        }
+      }
+    } else {
+      setSelectedRoute({})
+      setSelectedVehicle({})
+    }
+  }, [trip, routes, vehicles])
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} size="2xl">
         <ModalOverlay />
         <ModalContent bgColor="gray.800">
-          <ModalHeader fontSize="2xl">Veículo</ModalHeader>
+          <ModalHeader fontSize="2xl">Viagem</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <Flex
-              as="form"
-              id="vehicleForm"
-              width="100%"
-              onSubmit={handleSubmit(handleSaveClick)}
-            >
+            <Flex as="form" width="100%">
               <Stack spacing={4} flex={1}>
-                <FormControl isInvalid={!!errors?.description}>
+                <FormControl /* isInvalid={!!errors?.description} */>
                   <Skeleton isLoaded={!isLoading}>
-                    <FormLabel>Descrição</FormLabel>
+                    <FormLabel>Rota</FormLabel>
                   </Skeleton>
                   <Skeleton isLoaded={!isLoading}>
-                    <Input
-                      autoFocus
-                      focusBorderColor="pink.500"
-                      bgColor="gray.900"
-                      _hover={{
-                        bgColor: 'gray.900',
-                      }}
-                      variant="filled"
-                      size="lg"
-                      {...register('description')}
+                    <Select
+                      isSearchable
+                      value={selectedRoute}
+                      onChange={setSelectedRoute}
+                      options={routesOptions}
+                      isDisabled={!!selectedTripId}
                     />
-                    {!!errors?.description?.message && (
-                      <FormErrorMessage>
-                        {errors?.description?.message}
-                      </FormErrorMessage>
-                    )}
                   </Skeleton>
                 </FormControl>
-                <FormControl isInvalid={!!errors?.licensePlate}>
+                <FormControl /* isInvalid={!!errors?.licensePlate} */>
                   <Skeleton isLoaded={!isLoading}>
-                    <FormLabel>Placa</FormLabel>
+                    <FormLabel>Veículo</FormLabel>
                   </Skeleton>
                   <Skeleton isLoaded={!isLoading}>
-                    <Input
-                      focusBorderColor="pink.500"
-                      bgColor="gray.900"
-                      _hover={{
-                        bgColor: 'gray.900',
-                      }}
-                      variant="filled"
-                      size="lg"
-                      {...register('licensePlate')}
+                    <Select
+                      isSearchable
+                      value={selectedVehicle}
+                      onChange={setSelectedVehicle}
+                      options={vehiclesOptions}
                     />
-                    {!!errors?.licensePlate?.message && (
-                      <FormErrorMessage>
-                        {errors?.licensePlate?.message}
-                      </FormErrorMessage>
-                    )}
                   </Skeleton>
                 </FormControl>
-                <FormControl /* isInvalid={!!errors?.type} */>
+                <FormControl /* isInvalid={!!errors?.licensePlate} */>
                   <Skeleton isLoaded={!isLoading}>
-                    <FormLabel>Tipo</FormLabel>
-                  </Skeleton>
-                  <Skeleton isLoaded={!isLoading}>
-                    <RadioGroup
-                      value={type}
-                      onChange={(value: VehicleType) => setType(value)}
-                      // {...register('type')}
+                    <Checkbox
+                      size="md"
+                      colorScheme="purple"
+                      isChecked={isWayBack}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setIsWayBack(e.target.checked)
+                      }
+                      isDisabled={!!selectedTripId}
                     >
-                      <Stack
-                        direction={['column', null, null, 'row']}
-                        spacing={[2, null, null, 8]}
-                      >
-                        <Radio value="bus" colorScheme="pink" size="lg">
-                          Ônibus
-                        </Radio>
-                        <Radio value="minibus" colorScheme="pink" size="lg">
-                          Micro-ônibus
-                        </Radio>
-                        <Radio value="van" colorScheme="pink" size="lg">
-                          Van
-                        </Radio>
-                      </Stack>
-                    </RadioGroup>
-                    {/* {!!errors?.type?.message && (
-                      <FormErrorMessage>
-                        {errors?.type?.message}
-                      </FormErrorMessage>
-                    )} */}
+                      Viagem de Retorno?
+                    </Checkbox>
                   </Skeleton>
                 </FormControl>
               </Stack>
@@ -234,15 +259,14 @@ export function TripModal({
 
           <ModalFooter>
             <Button
-              type="submit"
-              form="vehicleForm"
+              onClick={handleSaveClick}
               colorScheme="blue"
               mr={3}
               isLoading={isSubmitting}
-              loadingText="Salvando..."
+              loadingText={selectedTripId ? 'Salvando...' : 'Iniciando...'}
               disabled={isLoading || isSubmitting}
             >
-              Salvar
+              {selectedTripId ? 'Salvar' : 'Iniciar'}
             </Button>
             <Button colorScheme="yellow" onClick={onClose}>
               Cancelar

@@ -323,11 +323,26 @@ export function TripMonitor() {
 
   return (
     <Box>
-      <Flex mb="8" justifyContent="space-between" alignItems="center">
-        <Heading size="lg" fontWeight="normal">
-          Viagens
-        </Heading>
+      <Flex mb="8" flexDir="column" width="100%">
+        <Flex
+          flexDir={['column', null, null, 'row']}
+          flex={1}
+          justifyContent="space-between"
+          rowGap="4"
+        >
+          <Heading size="lg" fontWeight="normal">
+            Viagem
+          </Heading>
+        </Flex>
+        {route?.description ? (
+          <Heading size="md" fontWeight="normal" mt={['4', null, null, 0]}>
+            {route?.description}
+          </Heading>
+        ) : (
+          <Skeleton height={35} width="100%" mb={2} />
+        )}
       </Flex>
+
       {!region && (
         <Flex justify="center" mt="20">
           <Spinner size="lg" />

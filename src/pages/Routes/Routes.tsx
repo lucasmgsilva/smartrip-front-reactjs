@@ -28,7 +28,6 @@ import { useDialog } from '../../contexts/DialogContext'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../contexts/AuthContext'
 
-import { isAdmin } from '@firebase/util'
 interface Coordinate {
   lat: number
   lng: number
@@ -65,6 +64,9 @@ export function Routes() {
   })
 
   const isAdministrator = user.type === 'administrator'
+
+  const isAdministratorOrDriver =
+    user.type === 'administrator' || user.type === 'driver'
 
   async function getRoutes() {
     setIsLoading(true)
@@ -164,23 +166,9 @@ export function Routes() {
                       <Td>{route.description}</Td>
                       <Td>{route.stoppingPoints.length}</Td>
                       <Td>{route.passengers_id.length}</Td>
-                      {isAdministrator && (
-                        <Td>
-                          <Flex gap="1">
-                            <Button
-                              size="sm"
-                              fontSize="sm"
-                              colorScheme="purple"
-                              leftIcon={
-                                <Icon as={RiPencilLine} fontSize="16" />
-                              }
-                              onClick={() => {
-                                setSelectedRouteId(route._id)
-                                modalDisclosure.onOpen()
-                              }}
-                            >
-                              {isWideVersion && 'Editar'}
-                            </Button>
+                      <Td>
+                        <Flex gap="1">
+                          {isAdministratorOrDriver && (
                             <Button
                               size="sm"
                               fontSize="sm"
@@ -194,23 +182,41 @@ export function Routes() {
                             >
                               {isWideVersion && 'Pontos de Parada'}
                             </Button>
-                            <Button
-                              size="sm"
-                              fontSize="sm"
-                              colorScheme="red"
-                              leftIcon={
-                                <Icon as={AiOutlineDelete} fontSize="16" />
-                              }
-                              onClick={() => {
-                                setSelectedRouteId(route._id)
-                                dialogDisclosure.onOpen()
-                              }}
-                            >
-                              {isWideVersion && 'Remover'}
-                            </Button>
-                          </Flex>
-                        </Td>
-                      )}
+                          )}
+                          {isAdministrator && (
+                            <>
+                              <Button
+                                size="sm"
+                                fontSize="sm"
+                                colorScheme="purple"
+                                leftIcon={
+                                  <Icon as={RiPencilLine} fontSize="16" />
+                                }
+                                onClick={() => {
+                                  setSelectedRouteId(route._id)
+                                  modalDisclosure.onOpen()
+                                }}
+                              >
+                                {isWideVersion && 'Editar'}
+                              </Button>
+                              <Button
+                                size="sm"
+                                fontSize="sm"
+                                colorScheme="red"
+                                leftIcon={
+                                  <Icon as={AiOutlineDelete} fontSize="16" />
+                                }
+                                onClick={() => {
+                                  setSelectedRouteId(route._id)
+                                  dialogDisclosure.onOpen()
+                                }}
+                              >
+                                {isWideVersion && 'Remover'}
+                              </Button>
+                            </>
+                          )}
+                        </Flex>
+                      </Td>
                     </Tr>
                   )
                 })}

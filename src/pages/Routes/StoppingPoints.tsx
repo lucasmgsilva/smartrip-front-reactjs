@@ -116,6 +116,9 @@ export function StoppingPoints() {
 
   const isAdministrator = user.type === 'administrator'
 
+  const isAdministratorOrDriver =
+    user.type === 'administrator' || user.type === 'driver'
+
   function sortRouteStoppingPoints(r: Route) {
     const sortedStoppingPoints = r.stoppingPoints.sort(
       (spA, spB) => spA.executionOrder - spB.executionOrder,
@@ -184,11 +187,6 @@ export function StoppingPoints() {
 
   return (
     <Box>
-      {!region && (
-        <Flex justify="center" mt="20">
-          <Spinner size="lg" />
-        </Flex>
-      )}
       <Flex mb="8" flexDir="column" width="100%">
         <Flex
           flexDir={['column', null, null, 'row']}
@@ -224,6 +222,12 @@ export function StoppingPoints() {
           <Skeleton height={35} width="100%" mb={2} />
         )}
       </Flex>
+
+      {!region && (
+        <Flex justify="center" mt="20">
+          <Spinner size="lg" />
+        </Flex>
+      )}
 
       {!!region && (
         <Map
@@ -271,7 +275,7 @@ export function StoppingPoints() {
                   <Th width="50%">Descrição</Th>
                   <Th>Latitude</Th>
                   <Th>Longitude</Th>
-                  <Th>Controles</Th>
+                  {isAdministratorOrDriver && <Th>Controles</Th>}
                 </Tr>
               </Thead>
               <Tbody>
@@ -284,22 +288,24 @@ export function StoppingPoints() {
                       <Td>{stoppingPoint.coordinates.lng}</Td>
                       <Td>
                         <Flex gap="1">
-                          <Button
-                            size="sm"
-                            fontSize="sm"
-                            colorScheme="teal"
-                            leftIcon={
-                              <Icon as={FaMapMarkerAlt} fontSize="16" />
-                            }
-                            onClick={() =>
-                              navigateTo({
-                                lat: stoppingPoint.coordinates.lat,
-                                lng: stoppingPoint.coordinates.lng,
-                              } as Coordinate)
-                            }
-                          >
-                            {isWideVersion && 'Seguir'}
-                          </Button>
+                          {isAdministratorOrDriver && (
+                            <Button
+                              size="sm"
+                              fontSize="sm"
+                              colorScheme="teal"
+                              leftIcon={
+                                <Icon as={FaMapMarkerAlt} fontSize="16" />
+                              }
+                              onClick={() =>
+                                navigateTo({
+                                  lat: stoppingPoint.coordinates.lat,
+                                  lng: stoppingPoint.coordinates.lng,
+                                } as Coordinate)
+                              }
+                            >
+                              {isWideVersion && 'Seguir'}
+                            </Button>
+                          )}
                           {isAdministrator && (
                             <>
                               <Button

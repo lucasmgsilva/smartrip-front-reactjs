@@ -18,7 +18,6 @@ import {
 } from '@chakra-ui/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toastify'
-import { Route } from '../pages/Routes'
 import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -26,6 +25,7 @@ import { api } from '../services/api'
 
 import Select from 'react-select'
 import { User } from '../pages/Users'
+import { Route } from '../pages/Routes/Routes'
 
 const routeFormSchema = zod.object({
   description: zod
