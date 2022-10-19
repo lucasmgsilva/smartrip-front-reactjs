@@ -23,8 +23,8 @@ import { useForm } from 'react-hook-form'
 import * as zod from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { api } from '../services/api'
-import { Route } from '../pages/Routes'
-import { Coordinate, StoppingPoint } from '../pages/StoppingPoints'
+import { Route } from '../pages/Routes/Routes'
+import { Coordinate, StoppingPoint } from '../pages/Routes/StoppingPoints'
 
 const stoppingPointFormSchema = zod.object({
   description: zod
