@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { AuthContext } from './contexts/AuthContext'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
@@ -20,26 +20,26 @@ export function Router() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* {user.name ? ( */}
-      <Route path="/" element={<DefaultLayout />}>
-        <Route path="/" element={<Home />} />
+      {user.name ? (
+        <Route path="/" element={<DefaultLayout />}>
+          <Route path="/" element={<Home />} />
 
-        <Route path="/veiculos" element={<Vehicles />} />
+          <Route path="/veiculos" element={<Vehicles />} />
 
-        <Route path="/rotas" element={<RoutesPage />} />
-        <Route
-          path="/rotas/pontos-de-parada/:id"
-          element={<StoppingPoints />}
-        />
+          <Route path="/rotas" element={<RoutesPage />} />
+          <Route
+            path="/rotas/pontos-de-parada/:id"
+            element={<StoppingPoints />}
+          />
 
-        <Route path="/usuarios" element={<Users />} />
+          <Route path="/usuarios" element={<Users />} />
 
-        <Route path="/viagens" element={<Trips />} />
-        <Route path="/viagens/:id" element={<TripMonitor />} />
-      </Route>
-      {/* ) : (
+          <Route path="/viagens" element={<Trips />} />
+          <Route path="/viagens/:id" element={<TripMonitor />} />
+        </Route>
+      ) : (
         <Route path="*" element={<Navigate to="/login" />} />
-      )} */}
+      )}
     </Routes>
   )
 }
