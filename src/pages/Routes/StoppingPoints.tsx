@@ -240,7 +240,7 @@ export function StoppingPoints() {
           mapStyle="mapbox://styles/mapbox/streets-v11"
           ref={mapRef}
           // scrollZoom={false}
-          touchZoomRotate={false}
+          touchZoomRotate={true}
           doubleClickZoom={false}
           onClick={handleAddStoppingPoint}
         >
