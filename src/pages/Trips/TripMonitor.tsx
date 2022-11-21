@@ -360,7 +360,7 @@ export function TripMonitor() {
           mapStyle="mapbox://styles/mapbox/streets-v11"
           ref={mapRef}
           // scrollZoom={false}
-          touchZoomRotate={false}
+          touchZoomRotate={true}
           doubleClickZoom={false}
         >
           <Source type="geojson" data={tripGeoJson as any}>

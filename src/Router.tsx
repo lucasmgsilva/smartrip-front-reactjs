@@ -1,6 +1,4 @@
-import { useContext } from 'react'
 import { Routes, Route } from 'react-router-dom'
-import { AuthContext } from './contexts/AuthContext'
 import { DefaultLayout } from './layouts/DefaultLayout'
 import { Home } from './pages/Home'
 import Login from './pages/Login'
@@ -13,8 +11,6 @@ import { Users } from './pages/Users'
 import { Vehicles } from './pages/Vehicles'
 
 export function Router() {
-  const { user } = useContext(AuthContext)
-
   return (
     <Routes>
       <Route path="/login" element={<Login />} />

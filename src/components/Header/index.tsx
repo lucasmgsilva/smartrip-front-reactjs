@@ -4,7 +4,6 @@ import { NavLink } from 'react-router-dom'
 import { useSidebar } from '../../contexts/SidebarContext'
 import { useSidebarDrawer } from '../../contexts/SidebarDrawerContext'
 import { Logo } from './Logo'
-import { NotificationsNav } from './NotificationsNav'
 import { Profile } from './Profile'
 
 export function Header() {

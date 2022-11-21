@@ -1,7 +1,3 @@
-// import { ThemeProvider } from 'styled-components'
-// import { GlobalStyle } from './styles/styled-components/globals'
-// import { defaultTheme } from './styles/styled-components/themes/default'
-
 import { BrowserRouter } from 'react-router-dom'
 import { SidebarDrawerProvider } from './contexts/SidebarDrawerContext'
 import { Router } from './Router'
@@ -15,7 +11,6 @@ import { AuthContextProvider } from './contexts/AuthContext'
 export function App() {
   return (
     <ChakraProvider theme={theme}>
-      {/* <ThemeProvider theme={defaultTheme}> */}
       <SidebarDrawerProvider>
         <SidebarProvider>
           <DialogProvider>
@@ -27,7 +22,6 @@ export function App() {
           </DialogProvider>
         </SidebarProvider>
       </SidebarDrawerProvider>
-      {/* </ThemeProvider> */}
     </ChakraProvider>
   )
 }
